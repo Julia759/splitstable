@@ -1,120 +1,151 @@
 # SplitStable
 
-**Splitwise meets Solana. Split expenses. Settle in USDC. 3 seconds. Zero fees.**
+**Telegram-native group expense splitting with USDC settlement on Solana.**
+
+SplitStable turns a group chat into a shared expense ledger. Add the bot to Telegram, create a split, and everyone pays from their existing Solana wallet.
+
+## Status
+
+MVP in progress. The first target is a Telegram bot with devnet USDC settlement, balance tracking, and Solana Pay payment links.
 
 ## The Problem
 
-People hold USDC on Solana but splitting group expenses is painful — copying wallet addresses, sending manual transactions one by one, chasing people who forget to pay. Splitwise tracks debts but can't settle. Venmo settles but doesn't work with crypto. Nothing does both.
+Group expenses usually happen in chat, but payment happens somewhere else. Friends coordinate dinner, rent, travel, or hackathon costs in Telegram, then someone has to copy wallet addresses, calculate who owes what, send reminders, and check whether everyone paid.
 
-## The Solution
+Splitwise tracks debts but does not settle crypto payments. Wallets settle crypto payments but do not understand shared expenses. The missing piece is a chat-native flow that tracks the split and gets the group settled without another app download.
 
-SplitStable — split expenses and settle in USDC on Solana. Start with a Telegram bot: add it to a group chat, type `/split 50 USDC dinner`, everyone taps one button to pay through their existing wallet (Phantom, Solflare, Backpack). Settled on-chain in 3 seconds for $0.001. No app download, no wallet addresses, no IOUs.
+## The Wedge
 
-As usage grows, SplitStable becomes a standalone web app with persistent groups, running balances, multi-currency support (USDC + EURC), and smart settle — one tap to clear all debts in a group at once.
+SplitStable starts where the expense already happens: the group chat.
 
-## Why Solana?
-
-| Chain | Cost to split 50 USDC between 5 people | Speed |
-|-------|---------------------------------------|-------|
-| Ethereum | ~$5-15 in gas | 15 sec |
-| Polygon | ~$0.05 | 5 sec |
-| **Solana** | **~$0.005** | **400ms** |
-
-Splitting a $10 coffee on Ethereum costs more than the coffee. On Solana, you can split a $1 snack and the fee is invisible.
+- One command creates a split
+- One button opens the wallet
+- USDC settles directly between friends
+- The bot keeps balances visible to the group
+- No manual wallet address copying
+- No new finance app to convince friends to install
 
 ## How It Works
 
-### Telegram Bot (MVP)
-```
+### Telegram Bot MVP
+
+```text
 /newgroup Trip Munich
 /split 50 USDC dinner
-→ Bot: "Everyone owes 12.50 USDC. Tap to pay."
-→ [Pay] button → opens wallet → confirm → settled in 3 sec
+
+Bot: Everyone owes 12.50 USDC.
+[Pay] -> opens wallet -> confirm -> settled on Solana
 ```
 
-### Web App
-1. Connect your Solana wallet (Phantom, Solflare, Backpack)
-2. Create a group, invite friends via link
-3. Add expenses — the app tracks who owes who
-4. One tap to settle — USDC transfers on-chain instantly
+The MVP focuses on equal splits, USDC settlement, group balances, reminders, and devnet testing before mainnet release.
+
+### Web App Roadmap
+
+1. Connect a Solana wallet such as Phantom, Solflare, or Backpack
+2. Create a group and invite friends with a link
+3. Add expenses and track who owes who
+4. Settle in USDC from the connected wallet
+5. Use smart settle to minimize the number of payments in a group
+
+## Why Solana
+
+Splitting small expenses only works if settlement is fast and cheap. Solana makes low-value stablecoin payments practical because network fees are measured in fractions of a cent and confirmations are fast enough for everyday checkout-style flows.
+
+| Network | Typical group-split fit | Why |
+|---------|-------------------------|-----|
+| Ethereum mainnet | Poor | Gas can cost more than small shared expenses |
+| Polygon | Good | Low fees, but less Solana-native wallet adoption |
+| Solana | Strong | Low fees, fast settlement, USDC support, strong wallet UX |
+
+The product is designed around Solana Pay links, SPL token transfers, and verified stablecoin mint addresses.
+
+## First Users
+
+SplitStable is for crypto-native groups that already coordinate in chat:
+
+- Hackathon teams
+- Hacker houses
+- Digital nomads
+- Web3 friend groups
+- Solana communities that already hold USDC
+
+## Competitive Landscape
+
+The market is not empty. There are web-based crypto and Solana expense-splitting products. SplitStable's position is different: Telegram-first, USDC-first, and optimized for groups that do not want to leave the chat.
+
+| Product | Tracks expenses | Crypto settlement | Solana-native | Chat-first | USDC-first |
+|---------|-----------------|-------------------|---------------|------------|------------|
+| Splitwise | Yes | No | No | No | No |
+| Venmo | Limited | No | No | No | No |
+| Revolut | Limited | Fiat | No | No | No |
+| Solana split apps | Yes | Yes | Yes | Usually no | Varies |
+| **SplitStable** | **Yes** | **Yes** | **Yes** | **Yes** | **Yes** |
+
+## Why This Wins
+
+Most expense products ask users to open a separate app after the group has already discussed the expense somewhere else. SplitStable removes that extra step. The bot becomes the payment surface inside the chat, while Solana handles the settlement layer.
+
+The strongest wedge is not "Splitwise on Solana." It is "the fastest way for Telegram groups to split and settle USDC expenses without downloading a new app."
+
+## Safety Model
+
+SplitStable should be non-custodial from day one:
+
+- Users sign payments in their own wallets
+- SplitStable never holds user funds
+- Payment requests validate token mint addresses, not just token symbols
+- Mainnet support follows devnet testing
+- The bot records expense state, but settlement happens through wallet-confirmed transactions
 
 ## Tech Stack
 
-- **Monorepo:** Turborepo (packages: bot, web, shared)
+- **Monorepo:** Turborepo
 - **Bot:** Node.js, TypeScript, grammY, Solana Pay
-- **Web:** Next.js 14, Tailwind CSS, Solana Wallet Adapter
-- **Blockchain:** Solana, @solana/web3.js, @solana/spl-token
-- **Database:** SQLite (MVP) → Postgres (production)
+- **Web:** Next.js, Tailwind CSS, Solana Wallet Adapter
+- **Blockchain:** Solana, `@solana/web3.js`, `@solana/spl-token`
+- **Database:** SQLite for MVP, Postgres for production
 
-## Project Structure
+## Planned Project Structure
 
-```
+```text
 splitstable/
 ├── packages/
-│   ├── shared/          # DB, Solana logic, utils (shared between bot + web)
-│   ├── bot/             # Telegram bot + Express server for Solana Pay
-│   └── web/             # Next.js web app with wallet connection
+│   ├── shared/          # Database, Solana logic, shared utilities
+│   ├── bot/             # Telegram bot and Solana Pay server
+│   └── web/             # Next.js web app
 ```
 
 ## Roadmap
 
-### Stage 1 — MVP: Telegram Bot
-- [x] Project setup (Turborepo monorepo)
-- [ ] Database layer (users, groups, expenses, balances)
-- [ ] Telegram bot commands (/split, /balances, /settle)
-- [ ] Solana Pay integration (payment links → wallet)
-- [ ] Deploy + live test on devnet
+### Stage 1: Telegram Bot MVP
 
-### Stage 2 — Web App
+- [x] Product concept and README
+- [ ] Turborepo project setup
+- [ ] Database layer for users, groups, expenses, and balances
+- [ ] Telegram bot commands: `/split`, `/balances`, `/settle`
+- [ ] Solana Pay payment links
+- [ ] Devnet USDC settlement test
+- [ ] Deployment and live group test
+
+### Stage 2: Web App
+
 - [ ] Next.js app with Solana Wallet Adapter
-- [ ] Dashboard, groups, expense tracking
-- [ ] In-app USDC payments via connected wallet
-- [ ] Invite system (share link → join group)
-- [ ] Deploy to Vercel
+- [ ] Dashboard for groups and expenses
+- [ ] Invite links for joining groups
+- [ ] In-app USDC settlement
+- [ ] Vercel deployment
 
-### Stage 3 — Growth
-- [ ] Multi-currency support (USDC + EURC via Jupiter swap)
-- [ ] Custom splits (percentages, exact amounts)
-- [ ] Smart settle (minimize transactions across all debts)
-- [ ] SDK for other Solana apps to embed group payments
+### Stage 3: Growth
 
-## Competitive Landscape
-
-| | Splitwise | Venmo | Revolut | **SplitStable** |
-|---|---|---|---|---|
-| Track group expenses | Yes | No | No | **Yes** |
-| Instant settlement | No | Yes (USD) | Yes (fiat) | **Yes (USDC)** |
-| Works globally | Yes | US only | EU/UK | **Worldwide** |
-| On-chain | No | No | No | **Yes** |
-| Near-zero fees | N/A | Free | Free | **$0.001** |
-| Crypto-native | No | No | No | **Yes** |
-
-**No group expense splitting product exists on Solana.** Validated against the Solana ecosystem directory, Colosseum hackathon winners (70+ projects), and GitHub.
-
-## Why Now
-
-1. **Stablecoin adoption is exploding** — Gusto, Mastercard, Western Union onboarding to Solana USDC
-2. **Solana fees hit near-zero** — micropayment splits are economically viable
-3. **MiCA is live in Europe** — regulatory clarity for stablecoin products
-4. **Zero competition** — this product doesn't exist yet
+- [ ] Custom split amounts and percentages
+- [ ] Multi-currency support with USDC and EURC
+- [ ] Smart settle to reduce the number of transactions
+- [ ] Receipt parsing
+- [ ] SDK for Solana apps that need group payment flows
 
 ## Getting Started
 
-```bash
-# Clone the repo
-git clone https://github.com/Julia759/splitstable.git
-cd splitstable
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp packages/bot/.env.example packages/bot/.env
-# Edit .env with your Telegram bot token and Solana RPC URL
-
-# Run the bot in development
-npm run dev --workspace=packages/bot
-```
+Implementation is not published yet. When the MVP code is added, this section will include local setup, environment variables, bot configuration, and devnet testing instructions.
 
 ## License
 
