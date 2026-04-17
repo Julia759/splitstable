@@ -30,6 +30,10 @@ SplitStable should not claim there is no competition. It should claim a narrower
 
 ## Direct Competitors
 
+For each product, I am using the same lens:
+
+> Where is SplitStable meaningfully different, not just slightly better?
+
 ### SPLit
 
 URL: https://www.splitsol.net/
@@ -54,9 +58,9 @@ Weaknesses or opening:
 
 Threat level: High
 
-My positioning read:
+Where SplitStable is different:
 
-Do not compete on "Solana bill splitting" alone. Compete on "Telegram group to USDC settlement."
+SPLit is the closest Solana-native reference point, so SplitStable should not compete on "Solana bill splitting" alone. The difference is the starting surface: SplitStable begins inside the Telegram group where the expense is already being negotiated, then turns that conversation into a USDC payment flow.
 
 ### Divvy
 
@@ -81,9 +85,9 @@ Weaknesses or opening:
 
 Threat level: Medium to High
 
-My positioning read:
+Where SplitStable is different:
 
-Avoid leading with receipt scanning. Lead with group-chat workflow and payment settlement.
+Divvy is closer to a receipt and checkout moment. SplitStable is closer to an ongoing group relationship: trips, hacker houses, hackathon teams, shared dinners, and recurring small costs. I should not lead with receipt scanning. I should lead with the group-chat workflow and the moment the IOU turns into a wallet-signed payment.
 
 ### SolSplitApp
 
@@ -109,9 +113,9 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-My positioning read:
+Where SplitStable is different:
 
-SplitStable should emphasize group ledger, balances, and USDC settlement, not just payment links.
+SolSplitApp is strong around payment links. SplitStable should feel less like a link generator and more like a shared ledger living in Telegram: who paid, who owes, what changed, and which payments are confirmed.
 
 ### SolSplitter
 
@@ -135,9 +139,9 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-My positioning read:
+Where SplitStable is different:
 
-Use more concrete demo storytelling and a cleaner user segment.
+SolSplitter has the broad Solana expense platform shape. SplitStable should be more specific and more social: Telegram-first, USDC-first, and built around the organizer who wants the group to settle without another app ritual.
 
 ## Telegram Substitutes
 
@@ -164,9 +168,9 @@ Weaknesses or opening:
 
 Threat level: High as a UX substitute
 
-My positioning read:
+Where SplitStable is different:
 
-Spliq proves Telegram is a strong surface. SplitStable must prove why on-chain USDC settlement adds value.
+Spliq proves that Telegram is a strong surface for expense tracking. SplitStable's difference has to be the settlement layer: not just "who owes who," but "tap Pay, sign in wallet, and update the balance after the USDC transfer is confirmed."
 
 ### SplitFast
 
@@ -191,9 +195,9 @@ Weaknesses or opening:
 
 Threat level: High as a Telegram expense tracker
 
-My positioning read:
+Where SplitStable is different:
 
-SplitStable should say: Telegram expense bots stop at "who owes who"; SplitStable closes the loop with wallet-signed USDC payment.
+SplitFast owns a clean Telegram-first expense story. SplitStable should not try to beat that by listing more expense features. The difference is payment finality for crypto-native groups: Telegram expense bots stop at "who owes who"; SplitStable closes the loop with wallet-signed USDC payment.
 
 ## Non-Crypto Substitutes
 
@@ -219,9 +223,9 @@ Weaknesses or opening:
 
 Threat level: High as mental model, low as Solana-native settlement competitor
 
-My positioning read:
+Where SplitStable is different:
 
-Use "Splitwise meets Solana" only as shorthand, not as final positioning.
+Splitwise is the mental shortcut, not the destination. SplitStable borrows the familiar idea of shared balances, but changes the surface and the rail: the split starts in Telegram and settlement happens through a Solana wallet.
 
 ### Split: Bill Splitter
 
@@ -246,9 +250,9 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-My positioning read:
+Where SplitStable is different:
 
-Consumer bill-splitting UX is getting polished. SplitStable cannot rely on crypto alone; the flow must feel easier for its specific first user.
+Split shows that mainstream bill-splitting UX is becoming polished. SplitStable cannot rely on crypto language alone. The difference must be situational: for a Telegram-native Solana group, SplitStable should feel easier than downloading another consumer finance app.
 
 ## Adjacent Competitors
 
@@ -275,9 +279,9 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-My positioning read:
+Where SplitStable is different:
 
-This validates the broader market for stablecoin settlement in shared expenses.
+HyperSplit validates the broader stablecoin settlement behavior. SplitStable chooses a different context: not receipt-first on Base, but Telegram-first on Solana for groups that already coordinate socially before they pay.
 
 ## Crowdedness Rating
 
