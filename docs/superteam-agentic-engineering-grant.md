@@ -16,7 +16,7 @@ Current public grant details:
 
 - `claude-session.jsonl` in the project root
 - `codex-session.jsonl` in the project root
-- Colosseum Crowdedness Score screenshot link: `TODO: add Google Drive or public link`
+- Colosseum Crowdedness Score screenshot link: `https://drive.google.com/file/d/1fACsiB25WL72Zop8-641w5tLvI3yzTPV/view?usp=sharing`
 
 The transcript files are intentionally gitignored. Attach them to the form, but do not commit them to the public repo.
 
