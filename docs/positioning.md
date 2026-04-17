@@ -2,20 +2,22 @@
 
 ## Purpose
 
-This document defines SplitStable as a product marketing portfolio project. The goal is not to pretend this is already a venture-backed company. The goal is to show how a web3 PMM thinks: audience, wedge, category, message, proof, launch motion, and technical narrative.
+This is my field guide for SplitStable: how I am turning a web3 product idea into a story people can understand, question, and follow in public.
 
-## Portfolio Framing
+I am using this project to practice the craft of product marketing in the open: audience, wedge, category, message, proof, launch motion, and technical narrative.
 
-SplitStable is a build-in-public case study for a Solana payments product.
+## Build-In-Public Framing
 
-It demonstrates how to take a raw web3 product idea and turn it into:
+SplitStable is my build-in-public exploration of a Solana payments product.
+
+The work is to take a raw idea and shape it into:
 
 - a clear target audience
 - a differentiated market position
 - a credible technical story
 - a demo narrative
 - a launch plan
-- public PMM artifacts
+- public product notes
 
 ## Category
 
@@ -88,7 +90,7 @@ These users already have the behaviors SplitStable needs:
 
 ### "The Group Organizer"
 
-The first PMM persona is the person who pays first and chases everyone later.
+The first persona is the person who pays first and chases everyone later.
 
 Profile:
 
@@ -232,7 +234,7 @@ SplitStable is not:
 - a token project
 - a replacement for every local payment app
 
-This constraint makes the PMM story cleaner and safer.
+This constraint makes the story cleaner and safer.
 
 ## Proof Points To Build
 
@@ -246,15 +248,15 @@ The first demo needs only a few proof points:
 
 This is enough to prove the product narrative.
 
-## PMM Narrative For Interviews
+## Builder's Note
 
-Use this summary in job conversations:
+The way I talk about this project:
 
-> I built SplitStable as a product marketing case study for a Solana payments product. I researched the competitive landscape, defined the first user segment, narrowed the product wedge, mapped the Solana architecture, and created launch assets around a Telegram-first USDC settlement flow. The goal was to show how I think about positioning technical products for real users, not just how I write copy.
+> I am building SplitStable in public to practice product marketing for a technical web3 product. I am researching the landscape, narrowing the first user, shaping the wedge, mapping the Solana architecture, and turning the idea into a demo people can understand quickly.
 
 ## Public Bio Line
 
-Building SplitStable in public: a PMM case study on chat-native USDC payments for Solana groups.
+Building SplitStable in public: chat-native USDC payments for Solana groups.
 
 ## Content Angles
 
@@ -269,7 +271,6 @@ Use these for LinkedIn and X:
 
 ## Final Position
 
-SplitStable should be positioned as a PMM portfolio project with a real product spine:
+SplitStable should be positioned as a public product experiment with a real product spine:
 
 > A Telegram-first USDC settlement experience for crypto-native groups that already coordinate in chat.
-

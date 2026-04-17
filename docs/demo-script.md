@@ -6,7 +6,7 @@ The demo should make one idea obvious:
 
 > A Telegram group can split an expense and settle in USDC on Solana without copying wallet addresses.
 
-The viewer should understand the product in under 30 seconds and understand the PMM case study in under 3 minutes.
+The viewer should understand the product in under 30 seconds and understand the build-in-public story in under 3 minutes.
 
 ## Demo Principles
 
@@ -15,7 +15,7 @@ The viewer should understand the product in under 30 seconds and understand the 
 - Use devnet clearly and honestly.
 - Avoid startup pitch language.
 - Explain only the technical details that support trust.
-- End with the PMM learning, not a fundraising ask.
+- End with what I learned, not a fundraising ask.
 
 ## Core Demo Flow
 
@@ -61,7 +61,7 @@ Bot response:
 Dinner: 50 USDC
 Everyone owes: 12.50 USDC
 
-Yuliia paid
+Paid by me
 Anna owes 12.50
 Max owes 12.50
 Leo owes 12.50
@@ -110,15 +110,15 @@ Bot response:
 ```text
 Dinner balance:
 Anna settled
-Max owes Yuliia 12.50 USDC
-Leo owes Yuliia 12.50 USDC
+Max owes me 12.50 USDC
+Leo owes me 12.50 USDC
 ```
 
 ### 0:50-1:00 - Close
 
 Voiceover:
 
-> SplitStable is a PMM case study for chat-native stablecoin payments: split in Telegram, settle on Solana.
+> SplitStable is my public experiment in chat-native stablecoin payments: split in Telegram, settle on Solana.
 
 On screen:
 
@@ -132,7 +132,7 @@ Split in chat. Settle on Solana.
 
 Voiceover:
 
-> I built SplitStable as a web3 product marketing case study. The insight is simple: group expenses start in chat, but payment happens somewhere else. For crypto-native groups using Telegram and USDC, that creates friction: wallet addresses, manual payments, screenshots, reminders, and unclear balances.
+> I am building SplitStable in public around one simple insight: group expenses start in chat, but payment happens somewhere else. For crypto-native groups using Telegram and USDC, that creates friction: wallet addresses, manual payments, screenshots, reminders, and unclear balances.
 
 On screen:
 
@@ -232,18 +232,18 @@ Solana split apps: crypto settlement, less chat-native
 SplitStable: chat-native + USDC settlement
 ```
 
-### 2:45-3:00 - PMM Close
+### 2:45-3:00 - Close
 
 Voiceover:
 
-> I built this to show how I approach product marketing for technical web3 products: research the market, narrow the user, define the wedge, explain the architecture, and turn it into a demo people can understand quickly.
+> I built this to practice the part of product marketing I care about most: turning a technical idea into a story people can see, question, and remember.
 
 On screen:
 
 ```text
 SplitStable
 Split in chat. Settle on Solana.
-PMM case study by Yuliia
+Built in public
 ```
 
 ## Live Demo Checklist
@@ -267,7 +267,7 @@ Use a realistic but simple example:
 
 Group:
 
-- Yuliia
+- Me
 - Anna
 - Max
 - Leo
@@ -322,22 +322,21 @@ Use this if someone asks how it works:
 
 > SplitStable keeps expense state off-chain and uses Solana only for settlement. The bot creates a payment intent with a unique reference key. The user signs a USDC transfer in their own wallet. After submission, the backend finds the transaction by reference and validates the mint, amount, sender, recipient, and success status before marking the payment as settled.
 
-## Interview Explanation
+## Builder Explanation
 
-Use this in PMM interviews:
+Use this when explaining the project:
 
-> I intentionally scoped the product around one demoable behavior: split in Telegram and settle in USDC. The PMM challenge was to avoid generic "Splitwise on blockchain" positioning and find the sharper wedge. The competitive research showed that Telegram expense bots and Solana bill-splitting apps both exist, so the differentiated message became Telegram-native coordination plus Solana-native settlement.
+> I intentionally scoped the product around one demoable behavior: split in Telegram and settle in USDC. The positioning challenge was to avoid generic "Splitwise on blockchain" language and find the sharper wedge. The competitive research showed that Telegram expense bots and Solana bill-splitting apps both exist, so the differentiated message became Telegram-native coordination plus Solana-native settlement.
 
 ## Final Demo CTA
 
 Use one of these:
 
 1. Follow the build-in-public series.
-2. Review the PMM docs in the repo.
+2. Review the product notes in the repo.
 3. Send feedback on the positioning.
 4. Share with a Solana team that coordinates expenses in Telegram.
 
 Recommended CTA:
 
-> I am using this as a web3 PMM case study. Feedback on the positioning is welcome.
-
+> I am building this in public. Feedback on the positioning is welcome.

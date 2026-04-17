@@ -4,6 +4,8 @@ Research date: April 17, 2026
 
 ## Executive Summary
 
+This is my current read of the market. I am treating competitors as signal, not as a reason to flatten the idea.
+
 SplitStable is entering a moderately crowded space. The opportunity is not "no one has built bill splitting." The opportunity is a sharper intersection:
 
 > Telegram-native group expense coordination plus Solana-native USDC settlement.
@@ -52,7 +54,7 @@ Weaknesses or opening:
 
 Threat level: High
 
-PMM implication:
+My positioning read:
 
 Do not compete on "Solana bill splitting" alone. Compete on "Telegram group to USDC settlement."
 
@@ -79,7 +81,7 @@ Weaknesses or opening:
 
 Threat level: Medium to High
 
-PMM implication:
+My positioning read:
 
 Avoid leading with receipt scanning. Lead with group-chat workflow and payment settlement.
 
@@ -107,7 +109,7 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-PMM implication:
+My positioning read:
 
 SplitStable should emphasize group ledger, balances, and USDC settlement, not just payment links.
 
@@ -128,12 +130,12 @@ Strengths:
 Weaknesses or opening:
 
 - Not obviously Telegram-first
-- USDT/SOL focus leaves room for USDC-first PMM
+- USDT/SOL focus leaves room for USDC-first positioning
 - Documentation-first presence may feel less consumer-ready
 
 Threat level: Medium
 
-PMM implication:
+My positioning read:
 
 Use more concrete demo storytelling and a cleaner user segment.
 
@@ -162,7 +164,7 @@ Weaknesses or opening:
 
 Threat level: High as a UX substitute
 
-PMM implication:
+My positioning read:
 
 Spliq proves Telegram is a strong surface. SplitStable must prove why on-chain USDC settlement adds value.
 
@@ -189,7 +191,7 @@ Weaknesses or opening:
 
 Threat level: High as a Telegram expense tracker
 
-PMM implication:
+My positioning read:
 
 SplitStable should say: Telegram expense bots stop at "who owes who"; SplitStable closes the loop with wallet-signed USDC payment.
 
@@ -217,7 +219,7 @@ Weaknesses or opening:
 
 Threat level: High as mental model, low as Solana-native settlement competitor
 
-PMM implication:
+My positioning read:
 
 Use "Splitwise meets Solana" only as shorthand, not as final positioning.
 
@@ -244,7 +246,7 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-PMM implication:
+My positioning read:
 
 Consumer bill-splitting UX is getting polished. SplitStable cannot rely on crypto alone; the flow must feel easier for its specific first user.
 
@@ -273,7 +275,7 @@ Weaknesses or opening:
 
 Threat level: Medium
 
-PMM implication:
+My positioning read:
 
 This validates the broader market for stablecoin settlement in shared expenses.
 
@@ -313,7 +315,7 @@ However, no dominant product clearly owns the specific combination of Telegram-f
 - Strong first-user segment: crypto-native groups
 - Non-custodial technical architecture
 - Demo can be simple and memorable
-- Good PMM portfolio story
+- A clean build-in-public story
 
 ### Weaknesses
 
@@ -325,10 +327,10 @@ However, no dominant product clearly owns the specific combination of Telegram-f
 
 ### Opportunities
 
-- Build-in-public content around PMM and Solana payments
+- Build-in-public content around product thinking and Solana payments
 - Use the project to show market research and technical storytelling
 - Interview beta users from Solana communities
-- Turn the project into a credible PMM portfolio case study
+- Turn the project into a credible public product narrative
 - Expand from expense splitting to chat-native payment coordination
 
 ### Threats
@@ -353,7 +355,7 @@ For a real product, the moat would need to evolve into:
 - community distribution
 - integrations with Solana wallets and communities
 
-For the PMM portfolio, the moat is different:
+For my build-in-public project, the moat is different:
 
 > Clear thinking, honest competitive research, and the ability to explain a technical product in human language.
 
@@ -403,4 +405,3 @@ Support it with:
 - Split: Bill Splitter App Store page: https://apps.apple.com/us/app/split-bill-splitter/id6746829861
 - Solana Pay overview: https://launch.solana.com/docs/solana-pay/overview
 - Solana Pay specification v1.1: https://launch.solana.com/docs/solana-pay/specification/version1.1
-

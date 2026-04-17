@@ -2,47 +2,39 @@
 
 ## Purpose
 
-This is not a venture launch plan. It is a PMM portfolio launch plan.
+This is my build-in-public launch plan for SplitStable.
 
-The goal is to use SplitStable to build in public, demonstrate web3 product marketing judgment, and create artifacts that can support job outreach for product marketing roles in web3.
+I am not treating this like a fundraising launch or a hackathon trophy hunt. I am using it as a public product marketing lab: a place to show how an idea becomes a message, how a message becomes a demo, and how a demo becomes a conversation.
+
+The project should feel like a trail of thinking, not a polished billboard.
 
 ## Launch Objective
 
 Primary objective:
 
-> Make hiring managers believe Yuliia can position, explain, and launch a technical web3 product.
+> Build a public story around SplitStable that makes the product, the user, and the Solana payment architecture easy to understand.
 
 Secondary objectives:
 
-- earn feedback from Solana and Telegram-native users
-- show product judgment through scope decisions
-- demonstrate market research
+- get feedback from Solana and Telegram-native users
+- show how I narrow a broad product idea into a simple wedge
+- document the competitive landscape honestly
 - explain Solana architecture in plain language
-- produce a credible demo video
-- create a public trail of thinking
+- produce a short demo that makes the idea obvious
+- create a public archive of positioning decisions, mistakes, and revisions
 
 ## Audience
 
 ### Primary Audience
 
-Web3 product marketing hiring managers.
+People who care about web3 products and how they are brought to market:
 
-What they should see:
-
-- clear positioning
-- user empathy
-- technical fluency
-- competitive awareness
-- launch thinking
-- crisp communication
-
-### Secondary Audience
-
-- web3 founders
-- Solana ecosystem teams
+- product marketers
+- Solana builders
+- founders
 - developer relations teams
-- product managers
 - community leads
+- product managers
 - crypto-native users who live in Telegram
 
 ### Beta Audience
@@ -55,37 +47,59 @@ Small Telegram groups that already use crypto:
 - digital nomads
 - friends who use USDC
 
-## Portfolio Thesis
+## Narrative Thesis
 
-SplitStable shows how to turn a technical product idea into a market-ready story.
+SplitStable starts with a tiny behavior:
 
-The story:
+> Someone pays for the group, then everyone else has to settle up.
 
-1. Group expenses already happen in chat.
-2. Crypto groups already use Telegram and wallets.
-3. Existing tools either track IOUs or handle crypto settlement, but rarely both inside chat.
-4. Solana Pay and USDC make instant, non-custodial settlement possible.
-5. The winning MVP is a Telegram-first demo, not a full fintech app.
+That behavior is old. The context is new.
+
+Crypto-native groups coordinate in Telegram, hold stablecoins, and often live across borders. Traditional payment apps are fragmented by country. Expense trackers stop at IOUs. Wallets settle payments but do not understand group context.
+
+SplitStable is the bridge:
+
+> Telegram is the coordination layer. Solana is the settlement layer.
+
+## Creative Spine
+
+The creative line:
+
+> Split in chat. Settle on Solana.
+
+The visual story:
+
+1. A group chat is messy.
+2. A bot turns the mess into a clear split.
+3. A wallet turns the split into a confirmed payment.
+4. The chat becomes calm again.
+
+The emotional story:
+
+> No awkward chasing. No copy-pasted wallet addresses. No "did you pay me?" screenshots.
 
 ## Launch Principles
 
-1. Build in public before the product is polished.
-2. Share decisions, not just outcomes.
-3. Make every post teach one PMM lesson.
-4. Keep the demo narrower than the vision.
+1. Write from my point of view.
+2. Share decisions before they look perfect.
+3. Make every post useful on its own.
+4. Keep the demo smaller than the vision.
 5. Be honest about competitors.
-6. Avoid founder theater.
-7. Use technical details only when they strengthen the user story.
+6. Do not pretend this is a finished company.
+7. Explain the chain only when it helps the user story.
+8. Let the audience see the work getting sharper.
 
 ## Scope For Public Demo
 
-Must show:
+The demo should show one memorable loop:
 
-- Telegram command creates a split
-- group members see what they owe
-- payment button opens wallet or payment page
-- devnet USDC payment is submitted or simulated clearly
-- bot updates balance after confirmation
+1. A Telegram command creates a split.
+2. Group members see what they owe.
+3. A Pay button opens a wallet or payment page.
+4. A devnet USDC payment is submitted or clearly simulated.
+5. The bot updates the balance after confirmation.
+
+This is enough.
 
 Can be mocked if necessary:
 
@@ -107,7 +121,7 @@ Out of scope:
 
 ## Launch Timeline
 
-### Week 1: Strategy Foundation
+### Week 1: Name The Shape
 
 Deliverables:
 
@@ -119,58 +133,62 @@ Deliverables:
 
 Public content:
 
-- "I am building SplitStable in public as a web3 PMM case study."
-- "The positioning problem: is this Splitwise on Solana, or something sharper?"
+- "I am building SplitStable in public."
+- "The positioning question: is this Splitwise on Solana, or something sharper?"
+- "The current answer: Telegram-first USDC settlement for crypto groups."
 
 Success signal:
 
-- 3-5 people respond with feedback or questions.
+- 3-5 people understand the concept and ask a useful question.
 
-### Week 2: Market And User Narrative
+### Week 2: Map The Room
 
 Deliverables:
 
-- audience/persona refinement
+- competitor teardown
 - user interview questions
-- simple feedback form
-- competitor teardown post
+- feedback form
+- audience/persona refinement
 
 Public content:
 
-- "What I learned mapping bill splitting competitors in web3."
-- "Why Telegram is the wedge, not just a distribution channel."
+- "I mapped the landscape and the space is not empty."
+- "Telegram expense bots prove the chat behavior."
+- "Solana split apps prove the settlement behavior."
+- "SplitStable lives in the overlap."
 
 Success signal:
 
-- 3 user conversations scheduled or completed.
+- 3 user conversations or feedback replies.
 
-### Week 3: Prototype Narrative
+### Week 3: Show The Skeleton
 
 Deliverables:
 
-- rough Telegram bot flow
+- rough Telegram flow
 - screenshots or screen recording
-- first demo draft
-- technical explainer: why no custom smart contract
+- technical explainer: why no custom smart contract for v1
+- rough demo draft
 
 Public content:
 
-- "Why SplitStable does not need a smart contract for v1."
-- "Demo draft: split in Telegram, settle in USDC."
+- "The MVP is one loop: split, pay, confirm."
+- "Why I am not starting with a smart contract."
+- "What I learned from making the demo smaller."
 
 Success signal:
 
-- users understand the flow without a live explanation.
+- someone can explain the product back in one sentence.
 
-### Week 4: Demo Launch
+### Week 4: Publish The Demo
 
 Deliverables:
 
-- polished demo video
-- README updates
+- polished 60-90 second demo
+- 3-minute walkthrough
+- README update
 - launch post
 - product walkthrough thread
-- PMM case study summary
 
 Public content:
 
@@ -181,98 +199,132 @@ Public content:
 
 Success signal:
 
-- 5-10 useful comments from builders, PMMs, or crypto users.
-- 1-3 warm job or networking conversations.
+- 5-10 useful comments from builders, product people, or crypto users.
+- at least one person points out a real positioning or UX issue.
 
-### Week 5: Retrospective And Job Outreach
+### Week 5: Turn Feedback Into Learning
 
 Deliverables:
 
 - retrospective doc
-- "what I would do next" section
-- updated CV/project blurb
-- outreach message template
+- "what I would change" section
+- updated positioning
+- next-step decision: build deeper, pause, or turn into a public recap
 
 Public content:
 
-- "What I learned building a Solana PMM case study in public."
+- "What changed after feedback."
 - "Five positioning lessons from SplitStable."
+- "What I would build next if this became real."
 
 Success signal:
 
-- project is usable in applications and interviews.
+- the project has a clear before-and-after story.
 
 ## Content Calendar
 
-### Post 1: Build In Public Announcement
+### Post 1: The Public Start
 
 Angle:
 
-I am building a web3 PMM case study, not pretending to be a startup founder.
+I am starting with the problem, not the polish.
 
 Draft:
 
-> I am building SplitStable in public: a PMM case study for a Solana payments product. The idea is simple: Telegram groups split expenses and settle in USDC without copying wallet addresses. I will share the positioning, competitive research, launch thinking, and demo as I go.
+> I am building SplitStable in public: a small Solana payments experiment around one question. What if a Telegram group could split an expense and settle in USDC without copying wallet addresses?
+>
+> I will share the positioning, competitor research, architecture decisions, and demo as the idea gets sharper.
 
-### Post 2: Problem Insight
+### Post 2: The Problem
 
 Angle:
 
-Group expenses start in chat, but payment happens somewhere else.
+Group expenses are social before they are financial.
 
 Draft:
 
-> The product insight behind SplitStable: expense splitting is not only a finance workflow. It is social coordination. The bill gets discussed in Telegram first, then everyone leaves the chat to pay somewhere else. What if the chat became the coordination layer and Solana became the settlement layer?
+> The product insight behind SplitStable: expense splitting starts as a conversation.
+>
+> "Who paid?"
+> "How much do I owe?"
+> "Where do I send it?"
+>
+> For crypto groups, that conversation already happens in Telegram. The payment still happens somewhere else.
 
-### Post 3: Competitive Landscape
+### Post 3: The Landscape
 
 Angle:
 
-The space is not empty. That makes the positioning work better.
+Competition makes the idea clearer.
 
 Draft:
 
-> I mapped SplitStable competitors and found three groups: traditional IOU trackers, Telegram expense bots, and Solana payment apps. The open wedge is not "bill splitting." It is Telegram-native USDC settlement for crypto groups.
+> I mapped the SplitStable landscape and found three worlds:
+>
+> 1. expense apps that track IOUs
+> 2. Telegram bots that organize group costs
+> 3. Solana apps that settle payments
+>
+> The wedge is not "bill splitting." The wedge is Telegram-native USDC settlement.
 
-### Post 4: Technical Narrative
+### Post 4: The Technical Choice
 
 Angle:
 
-Why no custom smart contract.
+Good web3 product thinking includes knowing what not to put on-chain.
 
 Draft:
 
-> A good web3 PMM should know when not to overchain a product. SplitStable does not need a custom Solana program for v1. The MVP can use SPL token transfers, Solana Pay payment links, reference keys, and server-side validation. That is faster, safer, and easier to explain.
+> SplitStable does not need a custom Solana program for v1.
+>
+> The MVP can use SPL token transfers, Solana Pay links, reference keys, and backend validation.
+>
+> The user benefit is simpler than the architecture: tap Pay, sign with wallet, see the group balance update.
 
-### Post 5: MVP Scope
+### Post 5: The Scope Cut
 
 Angle:
 
-Show product judgment through ruthless scope.
+Small demo, sharp story.
 
 Draft:
 
-> The SplitStable MVP is not a full app. It is one flow: `/split 50 USDC dinner` in Telegram, tap Pay, sign with wallet, bot confirms the devnet payment. If a feature does not improve that demo, it waits.
+> I cut the SplitStable MVP down to one loop:
+>
+> `/split 50 USDC dinner`
+> tap Pay
+> sign with wallet
+> bot confirms
+>
+> Everything else waits. A small demo with a clear story beats a big roadmap with no aha moment.
 
-### Post 6: Demo
+### Post 6: The Demo
 
 Angle:
 
-Make the product understandable in under 60 seconds.
+Show, then explain.
 
 Draft:
 
-> Demo: Split in chat. Settle on Solana. A Telegram group creates a USDC split, a user pays from their wallet, and the bot updates the balance after transaction confirmation.
+> Demo: Split in chat. Settle on Solana.
+>
+> A Telegram group creates a USDC split, a user pays from their wallet, and the bot updates the balance after transaction confirmation.
 
-### Post 7: PMM Retrospective
+### Post 7: The Retrospective
 
 Angle:
 
-Convert the project into job-relevant learning.
+Turn the project into learning.
 
 Draft:
 
-> What SplitStable taught me about web3 PMM: start with behavior, not technology; define the first user tightly; be honest about competitors; explain the chain only when it matters; and make the demo prove the positioning.
+> What SplitStable taught me:
+>
+> Start with behavior, not technology.
+> The first user should feel specific.
+> Competitors are not a reason to stop.
+> The blockchain part should make the product easier to trust, not harder to understand.
+> The demo has to prove the positioning.
 
 ## Launch Assets
 
@@ -287,8 +339,7 @@ Create these assets before sharing the final demo:
 - 3-minute walkthrough video
 - LinkedIn launch post
 - X launch thread
-- one-page PDF case study
-- job outreach blurb
+- one-page public recap
 
 ## Feedback Plan
 
@@ -309,15 +360,15 @@ Capture feedback in a simple table:
 
 ## Metrics
 
-Because this is a portfolio launch, measure learning and visibility, not revenue.
+Because this is a public learning launch, measure clarity and conversation.
 
-### Portfolio Metrics
+### Public Learning Metrics
 
-- number of public posts
+- number of build-in-public posts
 - number of meaningful comments
 - number of feedback conversations
-- number of profile views or inbound messages
-- number of job conversations influenced by the project
+- number of people who can repeat the positioning
+- number of objections discovered
 
 ### Product Signal Metrics
 
@@ -327,31 +378,21 @@ Because this is a portfolio launch, measure learning and visibility, not revenue
 - drop-off point in the flow
 - repeated "I understand it" reactions
 
-### PMM Artifact Metrics
+### Artifact Metrics
 
 - README clarity
 - demo completion rate
-- number of people who can repeat the positioning
-- number of useful objections discovered
+- competitive landscape usefulness
+- quality of feedback received
 
-## Outreach Message
+## Feedback Message
 
-Use this for web3 PMM networking:
-
-```text
-Hi [Name], I am building SplitStable in public as a web3 PMM case study: Telegram-native expense splitting with USDC settlement on Solana.
-
-I am using it to practice positioning, competitive research, launch strategy, and technical product storytelling. I thought your work at [Company] was relevant because [specific reason].
-
-Would you be open to giving quick feedback on the positioning or demo?
-```
-
-## Job Application Blurb
-
-Use this in applications:
+Use this when asking for input:
 
 ```text
-Built SplitStable as a web3 product marketing case study for a Solana payments product. Defined positioning, audience, competitive landscape, launch strategy, demo narrative, and technical messaging for a Telegram-first USDC settlement flow.
+Hi [Name], I am building SplitStable in public: a Telegram-first USDC settlement flow for Solana groups.
+
+I am trying to make the positioning and demo sharper. Would you be open to giving quick feedback on what feels clear, confusing, or risky?
 ```
 
 ## Risks
@@ -360,31 +401,30 @@ Built SplitStable as a web3 product marketing case study for a Solana payments p
 
 Response:
 
-The scope is intentionally narrow because the portfolio goal is to show positioning and product judgment.
+The scope is intentionally narrow. I want one product loop that people understand immediately.
 
 ### Risk: The product has competitors
 
 Response:
 
-That is good PMM material. The case study shows how to find a differentiated wedge in a real market.
+Good. That means the behavior is real. The work is to find the sharper wedge.
 
 ### Risk: The demo is not production-ready
 
 Response:
 
-The demo proves the core behavior. The docs explain what would be required for production.
+The demo proves the core behavior. The architecture docs explain what production would require.
 
-### Risk: Hiring managers mistake it for founder ambition
+### Risk: The project sounds too much like a startup pitch
 
 Response:
 
-Be explicit: this is a build-in-public PMM case study, not a fundraising project.
+Keep the voice honest: this is a public product experiment, not a fundraising deck.
 
 ## Success Definition
 
-This launch succeeds if it creates a credible public proof point for PMM roles in web3.
+This launch succeeds if the public story gets sharper over time.
 
 The ideal reaction:
 
-> She can explain technical web3 products clearly, think strategically about market positioning, and create launch assets that make a product easier to understand.
-
+> I understand the product, I understand who it is for, and I can see how the thinking evolved.
