@@ -32,7 +32,7 @@ The transcript files are intentionally gitignored. Attach them to the form, but 
 
 **TG username**
 
-> TODO: t.me/YOUR_TELEGRAM_USERNAME
+> TODO: t.me/yuliiazolot
 
 **Wallet Address**
 
@@ -89,7 +89,7 @@ Suggested note:
 
 **Personal X Profile**
 
-> TODO: https://x.com/YOUR_HANDLE
+> TODO: https://x.com/yzolotukhina
 
 **Personal GitHub Profile**
 
@@ -109,7 +109,7 @@ Suggested note:
 > - Tangerii: bill splitting application on Solana for seamless group expense management and instant settlements. Crowdedness: 223.
 > - VeraX Pay: Telegram-integrated payment gateway for Solana. Crowdedness: 223.
 >
-> Screenshot/public proof link: TODO: add Google Drive or public link.
+> Screenshot/public proof link: TODO:(https://drive.google.com/file/d/1fACsiB25WL72Zop8-641w5tLvI3yzTPV/view?usp=sharing)
 
 **AI Session Transcript**
 
