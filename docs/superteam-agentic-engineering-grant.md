@@ -97,9 +97,19 @@ Suggested note:
 
 **Colosseum Crowdedness Score**
 
-> TODO: Add public link to screenshot.
+> Colosseum Copilot crowdedness score: 223
 >
-> To complete this field, visit https://colosseum.com/copilot, get the crowdedness score for SplitStable or "Telegram-native USDC expense splitting on Solana," take a screenshot, upload it to Google Drive with public viewer access, and paste the link here.
+> Query used: "SplitStable Telegram native group expense splitting USDC settlement Solana Pay wallet signed payments"
+>
+> Closest matching cluster: Simplified Solana Payment Solutions
+>
+> Closest matching projects:
+>
+> - Fatira: onchain group expense splitting app for seamless settlements and verifiable transaction history on Solana. Crowdedness: 223.
+> - Tangerii: bill splitting application on Solana for seamless group expense management and instant settlements. Crowdedness: 223.
+> - VeraX Pay: Telegram-integrated payment gateway for Solana. Crowdedness: 223.
+>
+> Screenshot/public proof link: TODO: add Google Drive or public link.
 
 **AI Session Transcript**
 
@@ -162,7 +172,7 @@ Fill these before submitting:
 - Solana wallet address
 - X profile
 - Confirm or change the deadline
-- Colosseum Crowdedness Score screenshot link
+- Colosseum Crowdedness Score screenshot link. Score found: 223.
 - AI subscription receipt
 - Optional: short Loom/demo if one is ready
 
