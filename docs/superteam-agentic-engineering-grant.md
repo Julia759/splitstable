@@ -36,7 +36,7 @@ The transcript files are intentionally gitignored. Attach them to the form, but 
 
 **Wallet Address**
 
-> TODO: YOUR_SOLANA_WALLET_ADDRESS
+> TODO: 4uVDoGUbZFX5f5BNA1QANb1iVDf4wV2boJ3A46w9UnuD
 
 ## Step 2: Details
 
