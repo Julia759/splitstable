@@ -32,11 +32,11 @@ The transcript files are intentionally gitignored. Attach them to the form, but 
 
 **TG username**
 
-> TODO: t.me/yuliiazolot
+> t.me/yuliiazolot
 
 **Wallet Address**
 
-> TODO: 4uVDoGUbZFX5f5BNA1QANb1iVDf4wV2boJ3A46w9UnuD
+> 4uVDoGUbZFX5f5BNA1QANb1iVDf4wV2boJ3A46w9UnuD
 
 ## Step 2: Details
 
