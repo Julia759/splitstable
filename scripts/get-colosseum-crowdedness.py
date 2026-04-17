@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json
 import os
+import subprocess
 import sys
-import urllib.request
 
 
 API_BASE = os.environ.get("COLOSSEUM_COPILOT_API_BASE", "https://copilot.colosseum.com/api/v1").rstrip("/")
@@ -22,27 +22,46 @@ def fail(message: str) -> None:
 if not TOKEN:
     fail("Missing COLOSSEUM_COPILOT_PAT. Export it in this terminal first.")
 
-payload = {
-    "query": QUERY,
-    "limit": 8,
-    "diversify": True,
-}
+try:
+    # Colosseum Copilot sits behind Cloudflare. curl succeeds where Python's
+    # default urllib user agent can be rejected, so use curl for the request.
+    completed = subprocess.run(
+        [
+            "curl",
+            "-sS",
+            "-X",
+            "POST",
+            f"{API_BASE}/search/projects",
+            "-H",
+            f"Authorization: Bearer {TOKEN}",
+            "-H",
+            "Content-Type: application/json",
+            "-d",
+            json.dumps(
+                {
+                    "query": QUERY,
+                    "limit": 8,
+                    "diversify": True,
+                }
+            ),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+except FileNotFoundError:
+    fail("curl is not installed or not available on PATH.")
+except subprocess.TimeoutExpired:
+    fail("Colosseum Copilot request timed out.")
 
-req = urllib.request.Request(
-    f"{API_BASE}/search/projects",
-    data=json.dumps(payload).encode("utf-8"),
-    headers={
-        "Authorization": f"Bearer {TOKEN}",
-        "Content-Type": "application/json",
-    },
-    method="POST",
-)
+if completed.returncode != 0:
+    fail(f"Colosseum Copilot request failed: {completed.stderr.strip()}")
 
 try:
-    with urllib.request.urlopen(req, timeout=15) as response:
-        data = json.loads(response.read().decode("utf-8"))
-except Exception as exc:
-    fail(f"Colosseum Copilot request failed: {type(exc).__name__}: {exc}")
+    data = json.loads(completed.stdout)
+except json.JSONDecodeError:
+    fail(f"Colosseum Copilot returned non-JSON output:\n{completed.stdout[:1000]}")
 
 
 def find_projects(value):
