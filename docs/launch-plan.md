@@ -6,7 +6,7 @@ This is my build-in-public launch plan for SplitStable.
 
 I am not treating this like a fundraising launch or a hackathon trophy hunt. I am using it as a public product marketing lab: a place to show how an idea becomes a message, how a message becomes a demo, and how a demo becomes a conversation.
 
-The project should feel like a trail of thinking, not a polished billboard.
+First research, then idea, story arc and product I'm developing from scratch. In this project I'm combinig both product marketing and product management roles. This two should always be on the same page. Then success is guaranteed.  
 
 ## Launch Objective
 
