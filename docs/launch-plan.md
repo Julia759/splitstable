@@ -358,6 +358,51 @@ Capture feedback in a simple table:
 | Person | Segment | Key quote | Confusion | Signal | Follow-up |
 |--------|---------|-----------|-----------|--------|-----------|
 
+## Learning Loop
+
+The goal is not to prove that the first version of the story was right. The goal is to show how the story gets sharper after contact with real people.
+
+I will track feedback in three layers:
+
+1. What people repeat back
+2. What people misunderstand
+3. What I change because of it
+
+### Feedback Tracker
+
+| Date | Person or segment | What they understood | What confused them | Objection or risk | My response | Follow-up |
+|------|-------------------|----------------------|--------------------|-------------------|-------------|-----------|
+| TODO | Solana hackathon builder | TODO | TODO | TODO | TODO | TODO |
+| TODO | Product marketer | TODO | TODO | TODO | TODO | TODO |
+| TODO | Telegram-heavy crypto user | TODO | TODO | TODO | TODO | TODO |
+
+### Decision Log
+
+Use this when feedback changes the product, positioning, demo, or launch plan.
+
+| Date | Decision | Input that caused it | Tradeoff | What changed |
+|------|----------|----------------------|----------|--------------|
+| April 27, 2026 | Start implementation from the Telegram bot MVP instead of the web dashboard | The strongest wedge is the existing group chat behavior | Web dashboard polish waits | The first build sprint focuses on `/newgroup`, `/split`, and `/balances` |
+| TODO | TODO | TODO | TODO | TODO |
+
+### Before And After Positioning
+
+This section is intentionally unfinished until feedback comes in.
+
+| Version | Positioning | Why it changed |
+|---------|-------------|----------------|
+| v0 | Splitwise meets Solana | Too generic and too easy to dismiss as a crypto clone |
+| v1 | Telegram-first USDC settlement for Solana groups | Sharper surface, sharper user, clearer technical reason for Solana |
+| v2 | TODO after feedback | TODO |
+
+### Questions I Want Feedback To Answer
+
+- Does the first user feel specific enough?
+- Is Telegram actually the right wedge, or just a convenient demo surface?
+- Does USDC settlement feel like a real painkiller for Solana groups?
+- Which part feels least believable: wallet linking, payment flow, reminders, or group adoption?
+- Would a hiring manager understand my product and PMM thinking from the repo alone?
+
 ## Metrics
 
 Because this is a public learning launch, measure clarity and conversation.

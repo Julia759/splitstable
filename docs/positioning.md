@@ -66,14 +66,29 @@ Unlike traditional expense apps that stop at IOUs, or Solana bill-splitting apps
 
 Crypto-native groups that already use Telegram and Solana wallets.
 
-Priority segments:
+I started with a broad list, then narrowed it using the behaviors the MVP needs on day one: Telegram coordination, wallet readiness, USDC familiarity, clear shared costs, and reachability for feedback.
 
-- Solana hackathon teams
-- hacker houses
-- digital nomads
-- crypto friend groups
-- web3 community operators
-- small contributor teams
+| Segment | Pain intensity | Telegram usage | Wallet readiness | Reachability | Demo fit | Priority |
+|---------|----------------|----------------|------------------|--------------|----------|----------|
+| Solana hackathon teams | High | High | High | High | High | 1 |
+| Hacker houses | High | High | Medium | Medium | High | 2 |
+| Crypto friend groups | Medium | High | High | Medium | Medium | 3 |
+| Digital nomads | High | Medium | Medium | Medium | Medium | 4 |
+| Small contributor teams | Medium | High | Medium | Medium | Medium | 5 |
+| Web3 community operators | Medium | High | Medium | Low | Low | 6 |
+
+Beachhead decision:
+
+> The first audience I would pursue is Solana hackathon teams.
+
+Why:
+
+- the shared-cost behavior is easy to recognize: food, travel, supplies, bounties, and temporary housing
+- the users are more likely to already have Solana wallets
+- Telegram is already part of the coordination stack
+- the buying/adoption unit is small enough for a bot demo
+- the feedback loop is reachable through public Solana communities and build-in-public posts
+- the story is useful for PMM: it shows how a product can start with one specific segment instead of pretending to serve everyone
 
 ### Why This Audience
 

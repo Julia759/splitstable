@@ -2,9 +2,11 @@
 
 Grant link: https://superteam.fun/earn/grants/agentic-engineering
 
-Status checked: April 17, 2026
+Grant status checked: April 17, 2026
 
-Current public grant details:
+Draft revised: April 27, 2026
+
+Grant details captured on April 17, 2026:
 
 - Grant: Agentic Engineering Grants by Superteam
 - Status: Open
@@ -85,7 +87,7 @@ Suggested note:
 > - `claude-session.jsonl` exported to the project root
 > - `codex-session.jsonl` copied to the project root
 >
-> Current stage: planning, positioning, architecture, and grant application. The implementation phase is next.
+> Current stage: planning, positioning, architecture, and grant application are complete enough to start building. Implementation starts April 27, 2026.
 
 **Personal X Profile**
 
@@ -119,35 +121,15 @@ Suggested note:
 
 **Goals and Milestones**
 
-> Milestone 1: Project scaffold and split engine, due April 24, 2026
+> This plan was revised on April 27, 2026 because I am starting the implementation phase now. The previous scaffold milestone is replaced with a current build schedule.
 >
-> - Set up the monorepo with bot, web, database, split-engine, and Solana packages.
-> - Implement equal split calculation, balance updates, and deterministic USDC rounding in base units.
-> - Add unit tests for 2-person, 3-person, 5-person, and uneven split cases.
->
-> Milestone 2: Telegram MVP without payments, due April 29, 2026
->
-> - Implement `/start`, `/newgroup`, `/split`, `/balances`, and `/help`.
-> - Persist Telegram users, groups, expenses, participants, and balances.
-> - Demonstrate a fake-money group split end to end in Telegram.
->
-> Milestone 3: Wallet linking and payment intents, due May 4, 2026
->
-> - Build wallet-linking flow using a signed challenge.
-> - Link Telegram users to Solana wallet addresses.
-> - Create payment intent records with amount, mint, payer, recipient, status, and unique reference key.
->
-> Milestone 4: Devnet USDC settlement and validation, due May 8, 2026
->
-> - Add Solana Pay transaction request flow.
-> - Build wallet-signed devnet USDC transfer transactions.
-> - Validate transaction success, reference key, mint, amount, source owner, and destination owner before marking payment confirmed.
->
-> Milestone 5: Public demo and launch notes, due May 10, 2026
->
-> - Record a 60-90 second demo showing Telegram split creation, wallet payment, and bot confirmation.
-> - Update README with demo status and setup instructions.
-> - Publish a short build-in-public recap explaining the product, user, Solana architecture, and what changed after feedback.
+> | Milestone | Target date | Status | Deliverables | Notes |
+> |-----------|-------------|--------|--------------|-------|
+> | 1. Project scaffold and split engine | April 29, 2026 | Starting now | Set up monorepo, bot/web/database/split-engine/Solana packages, equal split calculation, balance updates, deterministic USDC rounding, unit tests | This is the first implementation step after positioning and architecture work |
+> | 2. Telegram MVP without payments | May 2, 2026 | Planned | Implement `/start`, `/newgroup`, `/split`, `/balances`, `/help`; persist Telegram users, groups, expenses, participants, and balances; demonstrate a fake-money group split end to end | This proves the chat workflow before touching real settlement |
+> | 3. Wallet linking and payment intents | May 5, 2026 | Planned | Build wallet-link challenge, link Telegram users to Solana wallet addresses, create payment intent records with amount, mint, payer, recipient, status, and reference key | This connects the social identity layer to the wallet layer |
+> | 4. Devnet USDC settlement and validation | May 8, 2026 | Planned | Add Solana Pay transaction request flow, build wallet-signed devnet USDC transfers, validate transaction success, reference key, mint, amount, source owner, and destination owner | This is the main proof point: payment is only marked settled after on-chain validation |
+> | 5. Public demo and launch notes | May 10, 2026 | Planned | Record a 60-90 second demo, update README with demo status and setup instructions, publish a short build-in-public recap | This turns the build into a visible PM/PMM artifact |
 
 **Primary KPI**
 
