@@ -1,0 +1,75 @@
+// SplitStable local persistence schema.
+//
+// Scope: enough to make Telegram group splits and balances survive
+// bot restarts. Wallet/Solana fields are intentionally optional
+// placeholders so future Solana Pay work does not require another
+// breaking schema change.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// One row per Telegram chat that has ever used the bot.
+/// Telegram chat ids can exceed 32-bit range, so we store them as BigInt.
+model TelegramChat {
+  id        BigInt   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  expenses Expense[]
+  balances Balance[]
+}
+
+/// One row per /split command. Amounts are stored in USDC base units
+/// (6 decimals) to avoid any floating-point drift.
+model Expense {
+  id                 String   @id @default(cuid())
+  chatId             BigInt
+  description        String
+  token              String   @default("USDC")
+  amountBaseUnits    BigInt
+  payerName          String
+  payerWalletAddress String?
+  createdAt          DateTime @default(now())
+
+  chat         TelegramChat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  participants ExpenseParticipant[]
+
+  @@index([chatId])
+}
+
+/// Per-participant share of a single expense.
+model ExpenseParticipant {
+  id              String  @id @default(cuid())
+  expenseId       String
+  participantName String
+  shareBaseUnits  BigInt
+  walletAddress   String?
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, participantName])
+  @@index([expenseId])
+}
+
+/// Net outstanding balance between two participants in a chat.
+/// We always keep at most one row per (chat, debtor, creditor) ordered pair,
+/// and we net offsetting amounts so /balances shows a clean view.
+model Balance {
+  id              String   @id @default(cuid())
+  chatId          BigInt
+  fromParticipant String
+  toParticipant   String
+  amountBaseUnits BigInt
+  updatedAt       DateTime @updatedAt
+
+  chat TelegramChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, fromParticipant, toParticipant])
+  @@index([chatId])
+}

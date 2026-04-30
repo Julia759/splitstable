@@ -1,0 +1,19 @@
+{
+  "name": "@splitstable/bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "corepack pnpm run build && node --env-file=../../.env dist/index.js",
+    "test": "corepack pnpm run build && node --test test/*.test.mjs",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@splitstable/database": "workspace:*",
+    "@splitstable/split-engine": "workspace:*",
+    "grammy": "^1.42.0"
+  }
+}

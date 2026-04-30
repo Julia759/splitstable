@@ -1,2 +1,24 @@
 claude-session.jsonl
 codex-session.jsonl
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Secrets / local environment (never commit)
+.env
+.env.local
+.env.*.local
+
+# Local SQLite databases (Prisma)
+packages/database/prisma/*.db
+packages/database/prisma/*.db-journal
+packages/database/test.db
+packages/database/test.db-journal
+
+# Locally installed Cursor/Codex agent skills (per-project tooling, not project code)
+.agents/
+skills-lock.json
+
+# pnpm local store (when not using global)
+.pnpm-store/
+

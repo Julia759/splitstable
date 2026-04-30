@@ -6,7 +6,33 @@ SplitStable turns a group chat into a shared expense ledger. Add the bot to Tele
 
 ## Status
 
-MVP in progress. The first target is a Telegram bot with devnet USDC settlement, balance tracking, and Solana Pay payment links.
+MVP in progress. I am starting implementation from the planning and positioning work in this repo. The first target is a Telegram bot with devnet USDC settlement, balance tracking, and Solana Pay payment links.
+
+## Product Thinking Case Study
+
+I am using SplitStable as a public product and product marketing case study for a web3 product manager or product marketing manager role.
+
+The project question:
+
+> Can I turn a broad "Splitwise on Solana" idea into a sharper product wedge, credible market story, and demoable MVP?
+
+My role in this repo:
+
+- product strategy: narrowed the audience, wedge, MVP scope, and roadmap
+- product marketing: shaped the category, positioning, messaging, demo script, and launch plan
+- market research: mapped traditional expense apps, Telegram expense bots, and Solana payment products
+- technical storytelling: translated Solana Pay, SPL transfers, payment validation, and non-custodial settlement into product language
+- launch planning: designed a build-in-public motion focused on feedback, learning, and iteration
+
+Best files to review:
+
+| Artifact | What it shows |
+|----------|---------------|
+| [Positioning](docs/positioning.md) | Audience, category, wedge, persona, messaging house, and first-user decision |
+| [Competitive landscape](docs/competitive-landscape.md) | Market mapping, competitor interpretation, threat level, and differentiation |
+| [Launch plan](docs/launch-plan.md) | Build-in-public narrative, content plan, feedback loop, and learning metrics |
+| [Demo script](docs/demo-script.md) | How I would explain the product quickly to users, builders, and hiring teams |
+| [Execution plan](EXECUTION_PLAN.md) | Product architecture, MVP milestones, data model, and payment validation logic |
 
 ## The Problem
 
@@ -99,20 +125,23 @@ SplitStable should be non-custodial from day one:
 
 ## Tech Stack
 
-- **Monorepo:** Turborepo
-- **Bot:** Node.js, TypeScript, grammY, Solana Pay
-- **Web:** Next.js, Tailwind CSS, Solana Wallet Adapter
-- **Blockchain:** Solana, `@solana/web3.js`, `@solana/spl-token`
-- **Database:** SQLite for MVP, Postgres for production
+- **Monorepo:** pnpm workspaces + TypeScript project references
+- **Bot:** Node.js, TypeScript, grammY
+- **Web:** Next.js, Tailwind CSS, Solana Wallet Adapter (planned)
+- **Blockchain:** Solana, `@solana/web3.js`, `@solana/spl-token` (planned)
+- **Database:** SQLite + Prisma for the MVP, Postgres for production
 
-## Planned Project Structure
+## Project Structure
 
 ```text
 splitstable/
+├── apps/
+│   ├── bot/             # Telegram bot (grammY)
+│   └── web/             # Next.js web app (placeholder)
 ├── packages/
-│   ├── shared/          # Database, Solana logic, shared utilities
-│   ├── bot/             # Telegram bot and Solana Pay server
-│   └── web/             # Next.js web app
+│   ├── split-engine/    # Pure split math (USDC base units, equal splits)
+│   ├── database/        # Prisma + SQLite persistence (recordSplit, getBalances)
+│   └── solana/          # Solana settlement helpers (placeholder)
 ```
 
 ## Roadmap
@@ -120,10 +149,11 @@ splitstable/
 ### Stage 1: Telegram Bot MVP
 
 - [x] Product concept and README
-- [ ] Turborepo project setup
-- [ ] Database layer for users, groups, expenses, and balances
-- [ ] Telegram bot commands: `/split`, `/balances`, `/settle`
-- [ ] Solana Pay payment links
+- [x] pnpm workspace project setup
+- [x] Database layer for chats, expenses, participant shares, and balances (SQLite + Prisma)
+- [x] Telegram bot commands: `/split`, `/balances` (demo)
+- [ ] Telegram bot command: `/settle`
+- [ ] On-chain USDC payment links (see Solana Pay note below)
 - [ ] Devnet USDC settlement test
 - [ ] Deployment and live group test
 
@@ -145,7 +175,70 @@ splitstable/
 
 ## Getting Started
 
-Implementation is not published yet. When the MVP code is added, this section will include local setup, environment variables, bot configuration, and devnet testing instructions.
+The first implementation pass is now in the repo: pnpm workspace setup, split-engine package, a local SQLite database, and a Telegram bot runner with persisted balances.
+
+Install dependencies:
+
+```bash
+corepack pnpm install
+```
+
+Initialize the local SQLite database (first run only):
+
+```bash
+corepack pnpm --filter @splitstable/database db:migrate
+```
+
+This creates `packages/database/prisma/dev.db` and applies the `TelegramChat`, `Expense`, `ExpenseParticipant`, and `Balance` tables. Re-run any time the schema changes.
+
+Run checks:
+
+```bash
+corepack pnpm run build
+corepack pnpm run typecheck
+corepack pnpm test
+```
+
+Run the Telegram bot locally:
+
+1. Create a Telegram bot with BotFather.
+2. Copy `.env.example` to `.env`.
+3. Add your token:
+
+```text
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+```
+
+4. Start the bot:
+
+```bash
+corepack pnpm run bot:dev
+```
+
+Then open Telegram and send:
+
+```text
+/start
+/split 50 USDC dinner
+/balances
+```
+
+Current local bot behavior:
+
+- `/start` introduces SplitStable
+- `/help` shows commands
+- `/split 50 USDC dinner` creates a demo equal split and persists it to SQLite
+- `/balances` reads the chat's current outstanding demo balances from SQLite
+- Splits and balances survive bot restarts; multiple splits in the same chat accumulate (with offsetting debts netted)
+- Wallet payments and on-chain settlement are not connected yet
+
+Useful database commands:
+
+| Command | What it does |
+|---------|--------------|
+| `corepack pnpm --filter @splitstable/database db:generate` | Regenerate the Prisma client after schema changes |
+| `corepack pnpm --filter @splitstable/database db:migrate` | Create and apply a new SQLite migration in development |
+| `corepack pnpm --filter @splitstable/database db:studio` | Open Prisma Studio to inspect data in a browser |
 
 ## License
 
