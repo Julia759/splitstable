@@ -6,6 +6,7 @@ import {
   type ParticipantShare
 } from "@splitstable/split-engine";
 import { getPrismaClient, type PrismaClient } from "./client.js";
+import { canonicalize, type ChatId } from "./members.js";
 
 /**
  * Persistence layer for SplitStable.
@@ -14,6 +15,9 @@ import { getPrismaClient, type PrismaClient } from "./client.js";
  * balance entries to the running per-chat ledger (with netting), and
  * returns a summary for the bot to format.
  *
+ * Participants come from the persisted ChatMember list, not from the
+ * caller, so the demo always reflects the real chat membership.
+ *
  * `getBalances` reads the current net outstanding balances for a chat
  * directly from SQLite, so they survive bot restarts.
  *
@@ -21,15 +25,15 @@ import { getPrismaClient, type PrismaClient } from "./client.js";
  * This is still a demo flow: no real settlement, no wallets yet.
  */
 
-export type ChatId = bigint | number;
+export type { ChatId } from "./members.js";
 
 export type RecordSplitInput = {
   chatId: ChatId;
   description: string;
   /** USDC amount as a decimal string, e.g. "50" or "12.50". */
   amount: string;
-  payerName: string;
-  participantNames: string[];
+  /** Telegram first name of the user who paid. Will be auto-added as a member. */
+  payerDisplayName: string;
 };
 
 export type PersistedShare = {
@@ -62,6 +66,9 @@ function toBigIntChatId(chatId: ChatId): bigint {
 
 /**
  * Persist a new equal split and update the chat's running balances.
+ *
+ * Auto-adds the payer to the chat's member list if missing. Errors
+ * cleanly if there are not at least two members to split among.
  */
 export async function recordSplit(
   input: RecordSplitInput,
@@ -69,18 +76,43 @@ export async function recordSplit(
 ): Promise<RecordSplitResult> {
   const chatId = toBigIntChatId(input.chatId);
   const amountBaseUnits = parseUsdcToBaseUnits(input.amount);
+  const payerName = canonicalize(input.payerDisplayName);
+  const payerDisplayName = input.payerDisplayName.trim();
 
-  const split = createEqualSplit({
-    amountBaseUnits,
-    participantIds: input.participantNames,
-    payerId: input.payerName
-  });
+  if (payerDisplayName.length === 0) {
+    throw new Error("Payer name is required");
+  }
 
-  const expenseId = await client.$transaction(async (tx) => {
+  return client.$transaction(async (tx) => {
     await tx.telegramChat.upsert({
       where: { id: chatId },
       create: { id: chatId },
       update: {}
+    });
+
+    await tx.chatMember.upsert({
+      where: { chatId_name: { chatId, name: payerName } },
+      create: { chatId, name: payerName, displayName: payerDisplayName },
+      update: {}
+    });
+
+    const memberRows = await tx.chatMember.findMany({
+      where: { chatId },
+      orderBy: { createdAt: "asc" }
+    });
+
+    if (memberRows.length < 2) {
+      throw new Error(
+        "Need at least two chat members to split. Use /addmember <name> to add someone."
+      );
+    }
+
+    const participantNames = memberRows.map((m) => m.name);
+
+    const split = createEqualSplit({
+      amountBaseUnits,
+      participantIds: participantNames,
+      payerId: payerName
     });
 
     const expense = await tx.expense.create({
@@ -89,7 +121,7 @@ export async function recordSplit(
         description: input.description,
         token: "USDC",
         amountBaseUnits,
-        payerName: input.payerName,
+        payerName,
         participants: {
           create: split.shares.map((share: ParticipantShare) => ({
             participantName: share.participantId,
@@ -104,23 +136,21 @@ export async function recordSplit(
       await applyBalanceDelta(tx, chatId, balance);
     }
 
-    return expense.id;
+    return {
+      expenseId: expense.id,
+      chatId,
+      description: input.description,
+      token: "USDC",
+      amountBaseUnits: split.amountBaseUnits,
+      payerName,
+      participantNames,
+      shares: split.shares.map((share) => ({
+        participantName: share.participantId,
+        shareBaseUnits: share.shareBaseUnits
+      })),
+      splitBalances: balanceEntriesToPersisted(split.balances)
+    };
   });
-
-  return {
-    expenseId,
-    chatId,
-    description: input.description,
-    token: "USDC",
-    amountBaseUnits: split.amountBaseUnits,
-    payerName: input.payerName,
-    participantNames: [...input.participantNames],
-    shares: split.shares.map((share) => ({
-      participantName: share.participantId,
-      shareBaseUnits: share.shareBaseUnits
-    })),
-    splitBalances: balanceEntriesToPersisted(split.balances)
-  };
 }
 
 /**

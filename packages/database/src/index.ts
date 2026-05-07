@@ -13,3 +13,12 @@ export {
   type PersistedShare,
   type PersistedBalance
 } from "./service.js";
+
+export {
+  addMember,
+  removeMember,
+  listMembers,
+  canonicalize,
+  type Member,
+  type AddMemberResult
+} from "./members.js";

@@ -23,6 +23,24 @@ model TelegramChat {
 
   expenses Expense[]
   balances Balance[]
+  members  ChatMember[]
+}
+
+/// A real participant in a chat, managed via /addmember.
+/// `name` is the canonical lowercase id used by the split engine and
+/// balances. `displayName` keeps the original casing for friendly UI.
+model ChatMember {
+  id            String   @id @default(cuid())
+  chatId        BigInt
+  name          String
+  displayName   String
+  walletAddress String?
+  createdAt     DateTime @default(now())
+
+  chat TelegramChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, name])
+  @@index([chatId])
 }
 
 /// One row per /split command. Amounts are stored in USDC base units

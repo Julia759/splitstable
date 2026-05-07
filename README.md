@@ -151,7 +151,7 @@ splitstable/
 - [x] Product concept and README
 - [x] pnpm workspace project setup
 - [x] Database layer for chats, expenses, participant shares, and balances (SQLite + Prisma)
-- [x] Telegram bot commands: `/split`, `/balances` (demo)
+- [x] Telegram bot commands: `/split`, `/balances`, `/addmember`, `/removemember`, `/members` (demo)
 - [ ] Telegram bot command: `/settle`
 - [ ] On-chain USDC payment links (see Solana Pay note below)
 - [ ] Devnet USDC settlement test
@@ -219,7 +219,9 @@ Then open Telegram and send:
 
 ```text
 /start
-/split 50 USDC dinner
+/addmember Tom
+/addmember Sara
+/split 30 USDC dinner
 /balances
 ```
 
@@ -227,8 +229,12 @@ Current local bot behavior:
 
 - `/start` introduces SplitStable
 - `/help` shows commands
-- `/split 50 USDC dinner` creates a demo equal split and persists it to SQLite
+- `/addmember <name>` adds a real participant to this chat
+- `/removemember <name>` removes a member (only when they have no outstanding balance)
+- `/members` lists current chat members
+- `/split 30 USDC dinner` creates a demo equal split among the chat's real members and persists it to SQLite
 - `/balances` reads the chat's current outstanding demo balances from SQLite
+- The person who runs `/split` is auto-added as a member if missing
 - Splits and balances survive bot restarts; multiple splits in the same chat accumulate (with offsetting debts netted)
 - Wallet payments and on-chain settlement are not connected yet
 
@@ -239,6 +245,21 @@ Useful database commands:
 | `corepack pnpm --filter @splitstable/database db:generate` | Regenerate the Prisma client after schema changes |
 | `corepack pnpm --filter @splitstable/database db:migrate` | Create and apply a new SQLite migration in development |
 | `corepack pnpm --filter @splitstable/database db:studio` | Open Prisma Studio to inspect data in a browser |
+
+## Deploying the Bot to Railway
+
+Run the bot 24/7 without your laptop. Free tier covers the demo workload.
+
+1. Sign up at [railway.com](https://railway.com) with GitHub.
+2. Click **New Project** → **Deploy from GitHub repo** → pick `splitstable`.
+3. In the new service, open **Settings** → **Volumes** → **Mount a volume**, mount path `/data`, name `splitstable-data`. SQLite needs persistent storage between deploys.
+4. Open **Variables** and add:
+   - `TELEGRAM_BOT_TOKEN` — from @BotFather
+   - `DATABASE_URL` — `file:/data/splitstable.db`
+5. Railway auto-detects `pnpm` and runs `pnpm install`, `pnpm run build`, and the `start` script defined in `package.json` (which applies migrations and launches the bot).
+6. Once status shows **Active**, stop your local bot (`kill <pid>`) — Telegram only allows one polling instance per token.
+
+Subsequent pushes to `main` redeploy automatically.
 
 ## License
 

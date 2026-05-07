@@ -2,28 +2,22 @@ import { pathToFileURL } from "node:url";
 import { Bot } from "grammy";
 import { formatUsdcFromBaseUnits } from "@splitstable/split-engine";
 import {
+  addMember,
   getBalances,
   getPrismaClient,
+  listMembers,
   recordSplit,
+  removeMember,
+  type Member,
   type PersistedBalance,
   type RecordSplitResult
 } from "@splitstable/database";
-
-const DEMO_PARTICIPANTS = ["me", "anna", "max", "leo"];
 
 export type ParsedSplitCommand = {
   amount: string;
   token: "USDC";
   description: string;
 };
-
-export function createDemoParticipantNames(payerName: string): string[] {
-  if (DEMO_PARTICIPANTS.includes(payerName)) {
-    return [payerName, ...DEMO_PARTICIPANTS.filter((participantName) => participantName !== payerName)];
-  }
-
-  return [payerName, ...DEMO_PARTICIPANTS.filter((participantName) => participantName !== "me")];
-}
 
 export function parseSplitCommand(text: string): ParsedSplitCommand {
   const match = /^\/split(?:@\w+)?\s+(\S+)\s+(\S+)\s+(.+)$/i.exec(text.trim());
@@ -51,7 +45,27 @@ export function parseSplitCommand(text: string): ParsedSplitCommand {
   };
 }
 
-export function createSplitReply(result: RecordSplitResult): string {
+export function parseSingleArgCommand(commandName: string, text: string): string {
+  const pattern = new RegExp(`^/${commandName}(?:@\\w+)?\\s+(.+)$`, "i");
+  const match = pattern.exec(text.trim());
+
+  if (!match) {
+    throw new Error(`Use /${commandName} <name>`);
+  }
+
+  return match[1].trim();
+}
+
+function buildDisplayMap(members: Member[]): Map<string, string> {
+  return new Map(members.map((member) => [member.name, member.displayName]));
+}
+
+function display(displayMap: Map<string, string>, name: string): string {
+  return displayMap.get(name) ?? name;
+}
+
+export function createSplitReply(result: RecordSplitResult, members: Member[]): string {
+  const displayMap = buildDisplayMap(members);
   const total = formatUsdcFromBaseUnits(result.amountBaseUnits);
   const everyoneShare = formatUsdcFromBaseUnits(result.shares[0]?.shareBaseUnits ?? 0n);
 
@@ -59,10 +73,10 @@ export function createSplitReply(result: RecordSplitResult): string {
     `${result.description}: ${total} ${result.token}`,
     `Everyone owes: ${everyoneShare} ${result.token}`,
     "",
-    `Paid by ${result.payerName}`,
+    `Paid by ${display(displayMap, result.payerName)}`,
     ...result.splitBalances.map(
       (balance) =>
-        `${balance.fromParticipant} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} ${result.token}`
+        `${display(displayMap, balance.fromParticipant)} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} ${result.token}`
     ),
     "",
     "[Demo only - wallet payments coming next]"
@@ -71,19 +85,34 @@ export function createSplitReply(result: RecordSplitResult): string {
   return lines.join("\n");
 }
 
-export function createBalancesReply(balances: PersistedBalance[]): string {
+export function createBalancesReply(balances: PersistedBalance[], members: Member[]): string {
   if (balances.length === 0) {
-    return "No balances yet. Create a demo split with /split 50 USDC dinner.";
+    return "No balances yet. Add members with /addmember <name>, then /split 50 USDC dinner.";
   }
+
+  const displayMap = buildDisplayMap(members);
 
   return [
     "Current demo balances for this chat:",
     ...balances.map(
       (balance) =>
-        `${balance.fromParticipant} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} USDC to ${balance.toParticipant}`
+        `${display(displayMap, balance.fromParticipant)} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} USDC to ${display(displayMap, balance.toParticipant)}`
     ),
     "",
     "Demo only: wallet payments and real settlement are coming next."
+  ].join("\n");
+}
+
+export function createMembersReply(members: Member[]): string {
+  if (members.length === 0) {
+    return "No members yet. Add one with /addmember <name>.";
+  }
+
+  return [
+    `Members (${members.length}):`,
+    ...members.map((member) => `- ${member.displayName}`),
+    "",
+    "Add more with /addmember <name>. Remove with /removemember <name>."
   ].join("\n");
 }
 
@@ -95,8 +124,11 @@ export function createSplitStableBot(token: string): Bot {
       [
         "SplitStable turns Telegram group expenses into USDC settlement on Solana.",
         "",
-        "Try:",
-        "/split 50 USDC dinner",
+        "Quick start:",
+        "1. /addmember Tom",
+        "2. /addmember Sara",
+        "3. /split 30 USDC dinner",
+        "4. /balances",
         "",
         "MVP status: split tracking works locally. Wallet payments come next."
       ].join("\n")
@@ -108,37 +140,102 @@ export function createSplitStableBot(token: string): Bot {
       [
         "Commands:",
         "/start - intro",
-        "/help - command list",
-        "/split 50 USDC dinner - create a demo equal split",
+        "/help - this list",
+        "/addmember <name> - add someone to this chat",
+        "/removemember <name> - remove a member (only if they have no balance)",
+        "/members - list current chat members",
+        "/split 30 USDC dinner - create an equal split among all members",
         "/balances - show outstanding demo balances for this chat",
         "",
-        "For now, the bot uses the payer plus demo members: anna, max, leo.",
-        "Balances are stored locally so they survive bot restarts."
+        "The person who runs /split is auto-added as a member.",
+        "All data is stored locally and survives restarts."
       ].join("\n")
     );
   });
 
+  bot.command("addmember", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
+    try {
+      const rawName = parseSingleArgCommand("addmember", ctx.message?.text ?? "");
+      const result = await addMember(chatId, rawName);
+      const members = await listMembers(chatId);
+      const verb = result.alreadyExisted ? "is already a member" : "added";
+      await ctx.reply(
+        [
+          `${result.member.displayName} ${verb}.`,
+          `Members (${members.length}): ${members.map((m) => m.displayName).join(", ")}`
+        ].join("\n")
+      );
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not add member");
+    }
+  });
+
+  bot.command("removemember", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
+    try {
+      const rawName = parseSingleArgCommand("removemember", ctx.message?.text ?? "");
+      const removed = await removeMember(chatId, rawName);
+      const members = await listMembers(chatId);
+      const remaining =
+        members.length === 0
+          ? "No members left. Add one with /addmember <name>."
+          : `Members (${members.length}): ${members.map((m) => m.displayName).join(", ")}`;
+      await ctx.reply(`Removed ${removed.displayName}.\n${remaining}`);
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not remove member");
+    }
+  });
+
+  bot.command("members", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
+    try {
+      const members = await listMembers(chatId);
+      await ctx.reply(createMembersReply(members));
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not load members");
+    }
+  });
+
   bot.command("split", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
     try {
       const parsed = parseSplitCommand(ctx.message?.text ?? "");
-      const payerName = ctx.from?.first_name?.toLowerCase() ?? "me";
-      const participantNames = createDemoParticipantNames(payerName);
-      const chatId = ctx.chat?.id;
-
-      if (chatId === undefined) {
-        await ctx.reply("Could not identify this Telegram chat.");
-        return;
-      }
+      const payerDisplayName = ctx.from?.first_name ?? "me";
 
       const result = await recordSplit({
         chatId,
         description: parsed.description,
         amount: parsed.amount,
-        payerName,
-        participantNames
+        payerDisplayName
       });
 
-      await ctx.reply(createSplitReply(result));
+      const members = await listMembers(chatId);
+      await ctx.reply(createSplitReply(result, members));
     } catch (error) {
       await ctx.reply(error instanceof Error ? error.message : "Could not create split");
     }
@@ -153,8 +250,11 @@ export function createSplitStableBot(token: string): Bot {
     }
 
     try {
-      const balances = await getBalances(chatId);
-      await ctx.reply(createBalancesReply(balances));
+      const [balances, members] = await Promise.all([
+        getBalances(chatId),
+        listMembers(chatId)
+      ]);
+      await ctx.reply(createBalancesReply(balances, members));
     } catch (error) {
       await ctx.reply(error instanceof Error ? error.message : "Could not load balances");
     }
