@@ -6,10 +6,13 @@ export {
 
 export {
   recordSplit,
+  recordSettlement,
   getBalances,
   type ChatId,
   type RecordSplitInput,
   type RecordSplitResult,
+  type RecordSettlementInput,
+  type RecordSettlementResult,
   type PersistedShare,
   type PersistedBalance
 } from "./service.js";

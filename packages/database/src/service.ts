@@ -1,5 +1,6 @@
 import {
   createEqualSplit,
+  formatUsdcFromBaseUnits,
   parseUsdcToBaseUnits,
   type BalanceEntry,
   type EqualSplitResult,
@@ -149,6 +150,155 @@ export async function recordSplit(
         shareBaseUnits: share.shareBaseUnits
       })),
       splitBalances: balanceEntriesToPersisted(split.balances)
+    };
+  });
+}
+
+export type RecordSettlementInput = {
+  chatId: ChatId;
+  /** Telegram first name of the user who ran /settle. */
+  senderDisplayName: string;
+  /** Raw name argument passed to /settle. */
+  counterpartyRawName: string;
+  /** Optional partial USDC amount as a decimal string. Omit to settle the full debt. */
+  amount?: string;
+};
+
+export type RecordSettlementResult = {
+  /** Canonical name of the debtor (the one who paid). */
+  fromParticipant: string;
+  /** Canonical name of the creditor (the one who got paid). */
+  toParticipant: string;
+  settledBaseUnits: bigint;
+  remainingBaseUnits: bigint;
+  fullSettlement: boolean;
+};
+
+/**
+ * Mark a debt between two members as (partially or fully) paid.
+ *
+ * Auto-detects direction: whichever side currently has positive
+ * outstanding debt is treated as the debtor. The sender of the
+ * command can be either side; both members must already exist
+ * in the chat.
+ *
+ * Demo only: nothing moves on-chain. We just adjust the ledger.
+ */
+export async function recordSettlement(
+  input: RecordSettlementInput,
+  client: PrismaClient = getPrismaClient()
+): Promise<RecordSettlementResult> {
+  const chatId = toBigIntChatId(input.chatId);
+  const senderName = canonicalize(input.senderDisplayName);
+  const counterpartyName = canonicalize(input.counterpartyRawName);
+
+  if (senderName.length === 0) {
+    throw new Error("Sender name is required");
+  }
+  if (counterpartyName.length === 0) {
+    throw new Error("Counterparty name is required");
+  }
+  if (senderName === counterpartyName) {
+    throw new Error("You cannot settle a debt with yourself");
+  }
+
+  return client.$transaction(async (tx) => {
+    const [sender, counterparty] = await Promise.all([
+      tx.chatMember.findUnique({
+        where: { chatId_name: { chatId, name: senderName } }
+      }),
+      tx.chatMember.findUnique({
+        where: { chatId_name: { chatId, name: counterpartyName } }
+      })
+    ]);
+
+    if (counterparty === null) {
+      throw new Error(`No member named "${input.counterpartyRawName}" in this chat`);
+    }
+    if (sender === null) {
+      throw new Error(
+        "You are not a member of this chat yet. Run /split or /addmember first."
+      );
+    }
+
+    const [forward, reverse] = await Promise.all([
+      tx.balance.findUnique({
+        where: {
+          chatId_fromParticipant_toParticipant: {
+            chatId,
+            fromParticipant: senderName,
+            toParticipant: counterpartyName
+          }
+        }
+      }),
+      tx.balance.findUnique({
+        where: {
+          chatId_fromParticipant_toParticipant: {
+            chatId,
+            fromParticipant: counterpartyName,
+            toParticipant: senderName
+          }
+        }
+      })
+    ]);
+
+    let debtorName: string;
+    let creditorName: string;
+    let debtAmount: bigint;
+
+    if (forward !== null && forward.amountBaseUnits > 0n) {
+      debtorName = senderName;
+      creditorName = counterpartyName;
+      debtAmount = forward.amountBaseUnits;
+    } else if (reverse !== null && reverse.amountBaseUnits > 0n) {
+      debtorName = counterpartyName;
+      creditorName = senderName;
+      debtAmount = reverse.amountBaseUnits;
+    } else {
+      throw new Error(
+        `No outstanding balance between ${sender.displayName} and ${counterparty.displayName}`
+      );
+    }
+
+    let settledAmount: bigint;
+    if (input.amount === undefined) {
+      settledAmount = debtAmount;
+    } else {
+      settledAmount = parseUsdcToBaseUnits(input.amount);
+      if (settledAmount <= 0n) {
+        throw new Error("Settlement amount must be greater than zero");
+      }
+      if (settledAmount > debtAmount) {
+        throw new Error(
+          `Cannot settle more than the outstanding debt (${formatUsdcFromBaseUnits(debtAmount)} USDC)`
+        );
+      }
+    }
+
+    const remaining = debtAmount - settledAmount;
+    const balanceKey = {
+      chatId_fromParticipant_toParticipant: {
+        chatId,
+        fromParticipant: debtorName,
+        toParticipant: creditorName
+      }
+    };
+
+    if (remaining === 0n) {
+      await tx.balance.delete({ where: balanceKey });
+    } else {
+      await tx.balance.update({
+        where: balanceKey,
+        data: { amountBaseUnits: remaining }
+      });
+    }
+
+    return {
+      fromParticipant: debtorName,
+      toParticipant: creditorName,
+      settledBaseUnits: settledAmount,
+      remainingBaseUnits: remaining,
+      fullSettlement: remaining === 0n
     };
   });
 }

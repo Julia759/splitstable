@@ -151,8 +151,7 @@ splitstable/
 - [x] Product concept and README
 - [x] pnpm workspace project setup
 - [x] Database layer for chats, expenses, participant shares, and balances (SQLite + Prisma)
-- [x] Telegram bot commands: `/split`, `/balances`, `/addmember`, `/removemember`, `/members` (demo)
-- [ ] Telegram bot command: `/settle`
+- [x] Telegram bot commands: `/split`, `/balances`, `/addmember`, `/removemember`, `/members`, `/settle` (demo)
 - [ ] On-chain USDC payment links (see Solana Pay note below)
 - [ ] Devnet USDC settlement test
 - [ ] Deployment and live group test
@@ -223,6 +222,7 @@ Then open Telegram and send:
 /addmember Sara
 /split 30 USDC dinner
 /balances
+/settle Tom 10
 ```
 
 Current local bot behavior:
@@ -234,9 +234,10 @@ Current local bot behavior:
 - `/members` lists current chat members
 - `/split 30 USDC dinner` creates a demo equal split among the chat's real members and persists it to SQLite
 - `/balances` reads the chat's current outstanding demo balances from SQLite
+- `/settle <name> [amount]` marks a debt paid (full if no amount, partial otherwise); the sender can be either side of the debt
 - The person who runs `/split` is auto-added as a member if missing
-- Splits and balances survive bot restarts; multiple splits in the same chat accumulate (with offsetting debts netted)
-- Wallet payments and on-chain settlement are not connected yet
+- Splits, balances, and settlements survive bot restarts; multiple splits in the same chat accumulate (with offsetting debts netted)
+- Wallet payments and on-chain settlement are not connected yet — `/settle` only updates the local ledger
 
 Useful database commands:
 

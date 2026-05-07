@@ -5,6 +5,7 @@ import {
   createPrismaClient,
   getBalances,
   listMembers,
+  recordSettlement,
   recordSplit,
   removeMember
 } from "../dist/index.js";
@@ -196,5 +197,183 @@ describe("getBalances", () => {
   it("returns an empty list for a chat with no expenses", async () => {
     const balances = await getBalances(5001n, prisma);
     assert.deepEqual(balances, []);
+  });
+});
+
+describe("recordSettlement", () => {
+  async function seedDebt(chatId) {
+    await seedMembers(chatId, ["Julia", "Tom"]);
+    await recordSplit(
+      { chatId, description: "dinner", amount: "30", payerDisplayName: "Julia" },
+      prisma
+    );
+  }
+
+  it("settles the full debt and removes the balance row", async () => {
+    await seedDebt(6001n);
+
+    const result = await recordSettlement(
+      {
+        chatId: 6001n,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom"
+      },
+      prisma
+    );
+
+    assert.equal(result.fromParticipant, "tom");
+    assert.equal(result.toParticipant, "julia");
+    assert.equal(result.settledBaseUnits, 15_000_000n);
+    assert.equal(result.remainingBaseUnits, 0n);
+    assert.equal(result.fullSettlement, true);
+
+    const balances = await getBalances(6001n, prisma);
+    assert.equal(balances.length, 0);
+  });
+
+  it("settles a partial debt and reduces the balance", async () => {
+    await seedDebt(6002n);
+
+    const result = await recordSettlement(
+      {
+        chatId: 6002n,
+        senderDisplayName: "Tom",
+        counterpartyRawName: "Julia",
+        amount: "5"
+      },
+      prisma
+    );
+
+    assert.equal(result.fromParticipant, "tom");
+    assert.equal(result.toParticipant, "julia");
+    assert.equal(result.settledBaseUnits, 5_000_000n);
+    assert.equal(result.remainingBaseUnits, 10_000_000n);
+    assert.equal(result.fullSettlement, false);
+
+    const balances = await getBalances(6002n, prisma);
+    assert.equal(balances.length, 1);
+    assert.equal(balances[0].fromParticipant, "tom");
+    assert.equal(balances[0].toParticipant, "julia");
+    assert.equal(balances[0].amountBaseUnits, 10_000_000n);
+  });
+
+  it("auto-detects direction regardless of who runs the command", async () => {
+    await seedDebt(6003n);
+
+    const fromCreditor = await recordSettlement(
+      {
+        chatId: 6003n,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom",
+        amount: "5"
+      },
+      prisma
+    );
+    assert.equal(fromCreditor.fromParticipant, "tom");
+    assert.equal(fromCreditor.toParticipant, "julia");
+
+    const fromDebtor = await recordSettlement(
+      {
+        chatId: 6003n,
+        senderDisplayName: "Tom",
+        counterpartyRawName: "Julia",
+        amount: "5"
+      },
+      prisma
+    );
+    assert.equal(fromDebtor.fromParticipant, "tom");
+    assert.equal(fromDebtor.toParticipant, "julia");
+
+    const balances = await getBalances(6003n, prisma);
+    assert.equal(balances[0].amountBaseUnits, 5_000_000n);
+  });
+
+  it("rejects settling more than the outstanding debt", async () => {
+    await seedDebt(6004n);
+
+    await assert.rejects(
+      () =>
+        recordSettlement(
+          {
+            chatId: 6004n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "Tom",
+            amount: "100"
+          },
+          prisma
+        ),
+      /more than the outstanding debt/
+    );
+  });
+
+  it("rejects when there is no outstanding balance", async () => {
+    await seedMembers(6005n, ["Julia", "Tom"]);
+
+    await assert.rejects(
+      () =>
+        recordSettlement(
+          {
+            chatId: 6005n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "Tom"
+          },
+          prisma
+        ),
+      /No outstanding balance/
+    );
+  });
+
+  it("rejects when the counterparty is not a chat member", async () => {
+    await seedDebt(6006n);
+
+    await assert.rejects(
+      () =>
+        recordSettlement(
+          {
+            chatId: 6006n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "Ghost"
+          },
+          prisma
+        ),
+      /No member named "Ghost"/
+    );
+  });
+
+  it("rejects when the sender tries to settle with themselves", async () => {
+    await seedDebt(6007n);
+
+    await assert.rejects(
+      () =>
+        recordSettlement(
+          {
+            chatId: 6007n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "julia"
+          },
+          prisma
+        ),
+      /cannot settle a debt with yourself/
+    );
+  });
+
+  it("allows the member to be removed after a full settlement", async () => {
+    await seedDebt(6008n);
+
+    await recordSettlement(
+      {
+        chatId: 6008n,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom"
+      },
+      prisma
+    );
+
+    await removeMember(6008n, "Tom", prisma);
+    const members = await listMembers(6008n, prisma);
+    assert.deepEqual(
+      members.map((m) => m.displayName),
+      ["Julia"]
+    );
   });
 });

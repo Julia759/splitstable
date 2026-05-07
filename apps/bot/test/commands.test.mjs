@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import {
   createBalancesReply,
   createMembersReply,
+  createSettleReply,
   createSplitReply,
+  parseSettleCommand,
   parseSingleArgCommand,
   parseSplitCommand
 } from "../dist/index.js";
@@ -126,6 +128,79 @@ describe("createBalancesReply", () => {
         "ghost owes 5 USDC to Julia",
         "",
         "Demo only: wallet payments and real settlement are coming next."
+      ].join("\n")
+    );
+  });
+});
+
+describe("parseSettleCommand", () => {
+  it("parses /settle with just a name (full settlement)", () => {
+    assert.deepEqual(parseSettleCommand("/settle Tom"), {
+      counterpartyName: "Tom",
+      amount: undefined
+    });
+  });
+
+  it("parses /settle with a partial amount", () => {
+    assert.deepEqual(parseSettleCommand("/settle Tom 5"), {
+      counterpartyName: "Tom",
+      amount: "5"
+    });
+  });
+
+  it("accepts an explicit USDC token", () => {
+    assert.deepEqual(parseSettleCommand("/settle@SplitStableBot Tom 12.50 usdc"), {
+      counterpartyName: "Tom",
+      amount: "12.50"
+    });
+  });
+
+  it("rejects unsupported tokens", () => {
+    assert.throws(() => parseSettleCommand("/settle Tom 10 SOL"), /only USDC/);
+  });
+
+  it("rejects when no name is supplied", () => {
+    assert.throws(() => parseSettleCommand("/settle"), /Use \/settle/);
+  });
+});
+
+describe("createSettleReply", () => {
+  it("renders a full settlement", () => {
+    const result = {
+      fromParticipant: "tom",
+      toParticipant: "julia",
+      settledBaseUnits: 15_000_000n,
+      remainingBaseUnits: 0n,
+      fullSettlement: true
+    };
+
+    assert.equal(
+      createSettleReply(result, SAMPLE_MEMBERS),
+      [
+        "Settled: Tom paid Julia 15 USDC.",
+        "Tom and Julia are even.",
+        "",
+        "[Demo only - no real funds moved]"
+      ].join("\n")
+    );
+  });
+
+  it("renders a partial settlement with the remaining debt", () => {
+    const result = {
+      fromParticipant: "tom",
+      toParticipant: "julia",
+      settledBaseUnits: 5_000_000n,
+      remainingBaseUnits: 10_000_000n,
+      fullSettlement: false
+    };
+
+    assert.equal(
+      createSettleReply(result, SAMPLE_MEMBERS),
+      [
+        "Settled: Tom paid Julia 5 USDC.",
+        "Tom still owes Julia 10 USDC.",
+        "",
+        "[Demo only - no real funds moved]"
       ].join("\n")
     );
   });

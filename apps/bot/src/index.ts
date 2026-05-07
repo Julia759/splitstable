@@ -6,10 +6,12 @@ import {
   getBalances,
   getPrismaClient,
   listMembers,
+  recordSettlement,
   recordSplit,
   removeMember,
   type Member,
   type PersistedBalance,
+  type RecordSettlementResult,
   type RecordSplitResult
 } from "@splitstable/database";
 
@@ -54,6 +56,27 @@ export function parseSingleArgCommand(commandName: string, text: string): string
   }
 
   return match[1].trim();
+}
+
+export type ParsedSettleCommand = {
+  counterpartyName: string;
+  amount?: string;
+};
+
+export function parseSettleCommand(text: string): ParsedSettleCommand {
+  const match = /^\/settle(?:@\w+)?\s+(\S+)(?:\s+(\S+)(?:\s+(\S+))?)?$/i.exec(text.trim());
+
+  if (!match) {
+    throw new Error("Use /settle <name> [amount]. Example: /settle Tom 10");
+  }
+
+  const [, counterpartyName, amount, token] = match;
+
+  if (token !== undefined && token.toUpperCase() !== "USDC") {
+    throw new Error("For the MVP, only USDC settlements are supported");
+  }
+
+  return { counterpartyName, amount };
 }
 
 function buildDisplayMap(members: Member[]): Map<string, string> {
@@ -103,6 +126,33 @@ export function createBalancesReply(balances: PersistedBalance[], members: Membe
   ].join("\n");
 }
 
+export function createSettleReply(
+  result: RecordSettlementResult,
+  members: Member[]
+): string {
+  const displayMap = buildDisplayMap(members);
+  const fromName = display(displayMap, result.fromParticipant);
+  const toName = display(displayMap, result.toParticipant);
+  const settled = formatUsdcFromBaseUnits(result.settledBaseUnits);
+
+  if (result.fullSettlement) {
+    return [
+      `Settled: ${fromName} paid ${toName} ${settled} USDC.`,
+      `${fromName} and ${toName} are even.`,
+      "",
+      "[Demo only - no real funds moved]"
+    ].join("\n");
+  }
+
+  const remaining = formatUsdcFromBaseUnits(result.remainingBaseUnits);
+  return [
+    `Settled: ${fromName} paid ${toName} ${settled} USDC.`,
+    `${fromName} still owes ${toName} ${remaining} USDC.`,
+    "",
+    "[Demo only - no real funds moved]"
+  ].join("\n");
+}
+
 export function createMembersReply(members: Member[]): string {
   if (members.length === 0) {
     return "No members yet. Add one with /addmember <name>.";
@@ -129,6 +179,7 @@ export function createSplitStableBot(token: string): Bot {
         "2. /addmember Sara",
         "3. /split 30 USDC dinner",
         "4. /balances",
+        "5. /settle Tom 10  (mark a debt paid)",
         "",
         "MVP status: split tracking works locally. Wallet payments come next."
       ].join("\n")
@@ -146,6 +197,7 @@ export function createSplitStableBot(token: string): Bot {
         "/members - list current chat members",
         "/split 30 USDC dinner - create an equal split among all members",
         "/balances - show outstanding demo balances for this chat",
+        "/settle <name> [amount] - mark a debt paid (full or partial)",
         "",
         "The person who runs /split is auto-added as a member.",
         "All data is stored locally and survives restarts."
@@ -238,6 +290,32 @@ export function createSplitStableBot(token: string): Bot {
       await ctx.reply(createSplitReply(result, members));
     } catch (error) {
       await ctx.reply(error instanceof Error ? error.message : "Could not create split");
+    }
+  });
+
+  bot.command("settle", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
+    try {
+      const parsed = parseSettleCommand(ctx.message?.text ?? "");
+      const senderDisplayName = ctx.from?.first_name ?? "me";
+
+      const result = await recordSettlement({
+        chatId,
+        senderDisplayName,
+        counterpartyRawName: parsed.counterpartyName,
+        amount: parsed.amount
+      });
+
+      const members = await listMembers(chatId);
+      await ctx.reply(createSettleReply(result, members));
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not settle");
     }
   });
 
