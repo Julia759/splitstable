@@ -7,6 +7,7 @@ import {
   createSettleReply,
   createSplitReply,
   createWalletReply,
+  parseSetWalletForCommand,
   parseSettleCommand,
   parseSingleArgCommand,
   parseSplitCommand
@@ -159,12 +160,80 @@ describe("parseSettleCommand", () => {
     });
   });
 
+  it("supports multi-word names with no amount", () => {
+    assert.deepEqual(parseSettleCommand("/settle Anna Karenina"), {
+      counterpartyName: "Anna Karenina",
+      amount: undefined
+    });
+  });
+
+  it("supports multi-word names with an amount", () => {
+    assert.deepEqual(parseSettleCommand("/settle Юлия Золотухина 5"), {
+      counterpartyName: "Юлия Золотухина",
+      amount: "5"
+    });
+  });
+
+  it("supports multi-word names with amount and USDC", () => {
+    assert.deepEqual(parseSettleCommand("/settle Юлия Золотухина 5 USDC"), {
+      counterpartyName: "Юлия Золотухина",
+      amount: "5"
+    });
+  });
+
   it("rejects unsupported tokens", () => {
     assert.throws(() => parseSettleCommand("/settle Tom 10 SOL"), /only USDC/);
   });
 
   it("rejects when no name is supplied", () => {
     assert.throws(() => parseSettleCommand("/settle"), /Use \/settle/);
+  });
+});
+
+describe("parseSetWalletForCommand", () => {
+  it("parses single-word name", () => {
+    assert.deepEqual(
+      parseSetWalletForCommand(`/setwalletfor Tom ${SAMPLE_WALLET}`),
+      { memberName: "Tom", walletAddress: SAMPLE_WALLET }
+    );
+  });
+
+  it("parses multi-word name", () => {
+    assert.deepEqual(
+      parseSetWalletForCommand(`/setwalletfor Юлия Золотухина ${SAMPLE_WALLET}`),
+      { memberName: "Юлия Золотухина", walletAddress: SAMPLE_WALLET }
+    );
+  });
+
+  it("parses with bot suffix", () => {
+    assert.deepEqual(
+      parseSetWalletForCommand(`/setwalletfor@SplitStableBot Tom ${SAMPLE_WALLET}`),
+      { memberName: "Tom", walletAddress: SAMPLE_WALLET }
+    );
+  });
+
+  it("rejects when address is missing", () => {
+    assert.throws(() => parseSetWalletForCommand("/setwalletfor Tom"), /Use \/setwalletfor/);
+  });
+
+  it("rejects when nothing is supplied", () => {
+    assert.throws(() => parseSetWalletForCommand("/setwalletfor"), /Use \/setwalletfor/);
+  });
+});
+
+describe("parseSingleArgCommand argLabel", () => {
+  it("uses default <name> label", () => {
+    assert.throws(
+      () => parseSingleArgCommand("addmember", "/addmember"),
+      /Use \/addmember <name>/
+    );
+  });
+
+  it("uses custom argLabel when provided", () => {
+    assert.throws(
+      () => parseSingleArgCommand("setwallet", "/setwallet", { argLabel: "address" }),
+      /Use \/setwallet <address>/
+    );
   });
 });
 

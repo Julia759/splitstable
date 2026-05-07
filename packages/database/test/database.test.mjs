@@ -13,7 +13,8 @@ import {
   recordSettlement,
   recordSplit,
   removeMember,
-  setMemberWallet
+  setMemberWallet,
+  setWalletForMember
 } from "../dist/index.js";
 
 const VALID_WALLET = "9hHs1J5gPRSkjucZxdCKsqLQGY2nUaSuwqcDR7zRXkTo";
@@ -247,6 +248,71 @@ describe("setMemberWallet", () => {
             chatId: 7003n,
             senderDisplayName: "Julia",
             walletAddress: "not-a-real-address"
+          },
+          prisma
+        ),
+      /not look like a valid Solana wallet/
+    );
+  });
+});
+
+describe("setWalletForMember", () => {
+  it("links a wallet to a pre-existing member", async () => {
+    await addMember(7050n, "Tom", prisma);
+
+    const result = await setWalletForMember(
+      {
+        chatId: 7050n,
+        rawName: "Tom",
+        walletAddress: VALID_WALLET
+      },
+      prisma
+    );
+
+    assert.equal(result.newlyLinked, true);
+    assert.equal(result.member.displayName, "Tom");
+    assert.equal(result.member.walletAddress, VALID_WALLET);
+  });
+
+  it("treats a second call as an update", async () => {
+    await addMember(7051n, "Tom", prisma);
+    await setWalletForMember(
+      { chatId: 7051n, rawName: "Tom", walletAddress: VALID_WALLET },
+      prisma
+    );
+    const second = await setWalletForMember(
+      { chatId: 7051n, rawName: "Tom", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+
+    assert.equal(second.newlyLinked, false);
+    assert.equal(second.member.walletAddress, VALID_WALLET_TWO);
+  });
+
+  it("rejects when the member does not exist", async () => {
+    await assert.rejects(
+      () =>
+        setWalletForMember(
+          {
+            chatId: 7052n,
+            rawName: "Ghost",
+            walletAddress: VALID_WALLET
+          },
+          prisma
+        ),
+      /No member named "Ghost"/
+    );
+  });
+
+  it("rejects an invalid Solana address", async () => {
+    await addMember(7053n, "Tom", prisma);
+    await assert.rejects(
+      () =>
+        setWalletForMember(
+          {
+            chatId: 7053n,
+            rawName: "Tom",
+            walletAddress: "garbage"
           },
           prisma
         ),

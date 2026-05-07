@@ -203,6 +203,61 @@ export async function setMemberWallet(
   });
 }
 
+export type SetWalletForInput = {
+  chatId: ChatId;
+  /** Raw display name argument from the admin command. */
+  rawName: string;
+  /** Raw base58 wallet address. */
+  walletAddress: string;
+};
+
+/**
+ * Admin variant of setMemberWallet: links a wallet to ANY member,
+ * not just the sender. The member must already exist (created via
+ * /addmember or /split). Used by the gated /setwalletfor command
+ * for demos and screen recordings; never call this from normal
+ * user-driven flows.
+ */
+export async function setWalletForMember(
+  input: SetWalletForInput,
+  client: PrismaClient = getPrismaClient()
+): Promise<SetWalletResult> {
+  const validatedAddress = assertValidSolanaAddress(input.walletAddress);
+  const name = canonicalize(input.rawName);
+  const id = toBigIntChatId(input.chatId);
+
+  if (name.length === 0) {
+    throw new Error("Member name is required");
+  }
+
+  return client.$transaction(async (tx) => {
+    const existing = await tx.chatMember.findUnique({
+      where: { chatId_name: { chatId: id, name } }
+    });
+
+    if (existing === null) {
+      throw new Error(
+        `No member named "${input.rawName}" in this chat. Add them first with /addmember <name>.`
+      );
+    }
+
+    const previousAddress = existing.walletAddress;
+    const updated = await tx.chatMember.update({
+      where: { chatId_name: { chatId: id, name } },
+      data: { walletAddress: validatedAddress }
+    });
+
+    return {
+      member: {
+        name: updated.name,
+        displayName: updated.displayName,
+        walletAddress: updated.walletAddress
+      },
+      newlyLinked: previousAddress === null
+    };
+  });
+}
+
 /**
  * Look up a single member by canonical name.
  */

@@ -240,6 +240,7 @@ Current bot behavior:
 - `/wallet` shows your linked wallet
 - `/split 30 USDC dinner` creates an equal split among the chat's real members and persists it to SQLite
 - `/balances` reads the chat's current outstanding balances from SQLite
+- `/setwalletfor <name> <address>` (only when `TEST_MODE=true`) sets ANY member's wallet — used for demos and screen recordings so one Telegram account can drive the full flow
 - `/settle <name> [amount]` either:
   - **on-chain mode** (both parties have linked wallets): generates a Solana Pay USDC request URL + QR on devnet. The debtor pays from their own wallet (Phantom, Solflare, Backpack…). A background watcher polls Solana RPC for the matching transaction and auto-clears the ledger when confirmed.
   - **demo ledger mode** (either wallet missing): just adjusts the local balance row, like before. No on-chain action.
@@ -256,6 +257,10 @@ Current bot behavior:
 5. Have your counterparty do the same.
 6. Run `/split 5 USDC dinner` then `/settle <name>`. Scan the QR with Phantom and confirm.
 7. Within ~15 seconds the bot posts the on-chain confirmation and clears the balance.
+
+### Solo demo mode (one Telegram account)
+
+For screen recordings or single-person demos, set `TEST_MODE=true` in your env. This enables `/setwalletfor <name> <address>`, which lets you set any member's wallet without needing them to be a real Telegram user. Use two Phantom accounts (or any two valid Solana addresses you control) to drive the full debtor/creditor flow from one chat.
 
 Useful database commands:
 

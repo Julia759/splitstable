@@ -23,10 +23,12 @@ export {
   listMembers,
   getMember,
   setMemberWallet,
+  setWalletForMember,
   canonicalize,
   type Member,
   type AddMemberResult,
   type SetWalletInput,
+  type SetWalletForInput,
   type SetWalletResult
 } from "./members.js";
 

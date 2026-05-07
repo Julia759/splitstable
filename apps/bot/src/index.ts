@@ -15,6 +15,7 @@ import {
   recordSplit,
   removeMember,
   setMemberWallet,
+  setWalletForMember,
   type CreatedPaymentIntent,
   type Member,
   type PersistedBalance,
@@ -54,12 +55,17 @@ export function parseSplitCommand(text: string): ParsedSplitCommand {
   };
 }
 
-export function parseSingleArgCommand(commandName: string, text: string): string {
+export function parseSingleArgCommand(
+  commandName: string,
+  text: string,
+  options?: { argLabel?: string }
+): string {
   const pattern = new RegExp(`^/${commandName}(?:@\\w+)?\\s+(.+)$`, "i");
   const match = pattern.exec(text.trim());
 
   if (!match) {
-    throw new Error(`Use /${commandName} <name>`);
+    const argLabel = options?.argLabel ?? "name";
+    throw new Error(`Use /${commandName} <${argLabel}>`);
   }
 
   return match[1].trim();
@@ -70,18 +76,88 @@ export type ParsedSettleCommand = {
   amount?: string;
 };
 
-export function parseSettleCommand(text: string): ParsedSettleCommand {
-  const match = /^\/settle(?:@\w+)?\s+(\S+)(?:\s+(\S+)(?:\s+(\S+))?)?$/i.exec(text.trim());
+export type ParsedSetWalletForCommand = {
+  memberName: string;
+  walletAddress: string;
+};
 
-  if (!match) {
+/**
+ * Parse `/setwalletfor <name...> <address>`. The address is always the
+ * LAST whitespace-separated token, everything before it is the
+ * (possibly multi-word) member name.
+ *
+ * We don't validate the address shape here; that's done by the
+ * service layer via assertValidSolanaAddress.
+ */
+export function parseSetWalletForCommand(text: string): ParsedSetWalletForCommand {
+  const headerMatch = /^\/setwalletfor(?:@\w+)?(?:\s+(.*))?$/i.exec(text.trim());
+
+  if (!headerMatch || !headerMatch[1] || headerMatch[1].length === 0) {
+    throw new Error("Use /setwalletfor <name> <address>");
+  }
+
+  const tokens = headerMatch[1].split(/\s+/);
+
+  if (tokens.length < 2) {
+    throw new Error("Use /setwalletfor <name> <address>");
+  }
+
+  const walletAddress = tokens.pop() as string;
+  const memberName = tokens.join(" ");
+
+  return { memberName, walletAddress };
+}
+
+function isTestModeEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return (env.TEST_MODE ?? "").trim().toLowerCase() === "true";
+}
+
+/**
+ * Parse `/settle <name...> [amount] [USDC]`. The name can be one or
+ * more words; we identify amount by inspecting the trailing tokens
+ * from the right, which makes "/settle Anna Karenina 10" work
+ * unambiguously without quoting.
+ *
+ * Rules:
+ *  - last token is "USDC" (case insensitive)  -> drop it, treat as token
+ *  - last remaining token is numeric          -> drop it, treat as amount
+ *  - everything that remains is the name      -> joined with spaces
+ *  - if nothing remains for the name          -> error
+ *  - any non-USDC token where USDC was expected -> error
+ */
+export function parseSettleCommand(text: string): ParsedSettleCommand {
+  const trimmed = text.trim();
+  const headerMatch = /^\/settle(?:@\w+)?(?:\s+(.*))?$/i.exec(trimmed);
+
+  if (!headerMatch || !headerMatch[1] || headerMatch[1].length === 0) {
     throw new Error("Use /settle <name> [amount]. Example: /settle Tom 10");
   }
 
-  const [, counterpartyName, amount, token] = match;
+  const tokens = headerMatch[1].split(/\s+/);
+  let amount: string | undefined;
 
-  if (token !== undefined && token.toUpperCase() !== "USDC") {
-    throw new Error("For the MVP, only USDC settlements are supported");
+  const isNumeric = (token: string): boolean => /^\d+(?:\.\d+)?$/.test(token);
+
+  const last = tokens[tokens.length - 1];
+  const secondLast = tokens.length >= 2 ? tokens[tokens.length - 2] : undefined;
+
+  if (last !== undefined && /^[A-Za-z]+$/.test(last) && secondLast !== undefined && isNumeric(secondLast)) {
+    if (last.toUpperCase() !== "USDC") {
+      throw new Error("For the MVP, only USDC settlements are supported");
+    }
+    tokens.pop();
   }
+
+  const newLast = tokens[tokens.length - 1];
+  if (newLast !== undefined && isNumeric(newLast) && tokens.length > 1) {
+    amount = tokens.pop();
+  }
+
+  if (tokens.length === 0) {
+    throw new Error("Use /settle <name> [amount]. Example: /settle Tom 10");
+  }
+
+  const counterpartyName = tokens.join(" ");
 
   return { counterpartyName, amount };
 }
@@ -250,24 +326,33 @@ export function createSplitStableBot(token: string): Bot {
   });
 
   bot.command("help", async (ctx) => {
-    await ctx.reply(
-      [
-        "Commands:",
-        "/start - intro",
-        "/help - this list",
-        "/addmember <name> - add someone to this chat",
-        "/removemember <name> - remove a member (only if they have no balance)",
-        "/members - list current chat members and their wallets",
-        "/setwallet <address> - link your Solana wallet for on-chain settlement",
-        "/wallet - show your linked wallet address",
-        "/split 30 USDC dinner - create an equal split among all members",
-        "/balances - show outstanding demo balances for this chat",
-        "/settle <name> [amount] - mark a debt paid (full or partial)",
-        "",
-        "The person who runs /split is auto-added as a member.",
-        "All data is stored locally and survives restarts."
-      ].join("\n")
+    const lines = [
+      "Commands:",
+      "/start - intro",
+      "/help - this list",
+      "/addmember <name> - add someone to this chat",
+      "/removemember <name> - remove a member (only if they have no balance)",
+      "/members - list current chat members and their wallets",
+      "/setwallet <address> - link your Solana wallet for on-chain settlement",
+      "/wallet - show your linked wallet address",
+      "/split 30 USDC dinner - create an equal split among all members",
+      "/balances - show outstanding demo balances for this chat",
+      "/settle <name> [amount] - mark a debt paid (full or partial)"
+    ];
+
+    if (isTestModeEnabled()) {
+      lines.push(
+        "/setwalletfor <name> <address> - (test mode) set any member's wallet for demos"
+      );
+    }
+
+    lines.push(
+      "",
+      "The person who runs /split is auto-added as a member.",
+      "All data is stored locally and survives restarts."
     );
+
+    await ctx.reply(lines.join("\n"));
   });
 
   bot.command("addmember", async (ctx) => {
@@ -316,6 +401,34 @@ export function createSplitStableBot(token: string): Bot {
     }
   });
 
+  bot.command("setwalletfor", async (ctx) => {
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
+      await ctx.reply("Could not identify this Telegram chat.");
+      return;
+    }
+
+    if (!isTestModeEnabled()) {
+      await ctx.reply(
+        "/setwalletfor is disabled. Set TEST_MODE=true in the bot environment to enable it."
+      );
+      return;
+    }
+
+    try {
+      const parsed = parseSetWalletForCommand(ctx.message?.text ?? "");
+      const result = await setWalletForMember({
+        chatId,
+        rawName: parsed.memberName,
+        walletAddress: parsed.walletAddress
+      });
+      await ctx.reply(createSetWalletReply(result.member, result.newlyLinked));
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not link wallet");
+    }
+  });
+
   bot.command("setwallet", async (ctx) => {
     const chatId = ctx.chat?.id;
 
@@ -325,7 +438,9 @@ export function createSplitStableBot(token: string): Bot {
     }
 
     try {
-      const rawAddress = parseSingleArgCommand("setwallet", ctx.message?.text ?? "");
+      const rawAddress = parseSingleArgCommand("setwallet", ctx.message?.text ?? "", {
+        argLabel: "address"
+      });
       const senderDisplayName = ctx.from?.first_name ?? "me";
       const result = await setMemberWallet({
         chatId,
