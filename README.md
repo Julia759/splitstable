@@ -128,7 +128,8 @@ SplitStable should be non-custodial from day one:
 - **Monorepo:** pnpm workspaces + TypeScript project references
 - **Bot:** Node.js, TypeScript, grammY
 - **Web:** Next.js, Tailwind CSS, Solana Wallet Adapter (planned)
-- **Blockchain:** Solana, `@solana/web3.js`, `@solana/spl-token` (planned)
+- **Blockchain:** Solana, `@solana/pay`, `@solana/kit`, `@solana/web3.js`
+- **Payments:** Solana Pay transfer-request URLs, reference-key polling for verification
 - **Database:** SQLite + Prisma for the MVP, Postgres for production
 
 ## Project Structure
@@ -136,12 +137,12 @@ SplitStable should be non-custodial from day one:
 ```text
 splitstable/
 ├── apps/
-│   ├── bot/             # Telegram bot (grammY)
+│   ├── bot/             # Telegram bot (grammY) + payment watcher
 │   └── web/             # Next.js web app (placeholder)
 ├── packages/
 │   ├── split-engine/    # Pure split math (USDC base units, equal splits)
-│   ├── database/        # Prisma + SQLite persistence (recordSplit, getBalances)
-│   └── solana/          # Solana settlement helpers (placeholder)
+│   ├── database/        # Prisma + SQLite persistence (splits, balances, payment intents)
+│   └── solana/          # Solana Pay URL builder + on-chain payment verification
 ```
 
 ## Roadmap
@@ -151,10 +152,13 @@ splitstable/
 - [x] Product concept and README
 - [x] pnpm workspace project setup
 - [x] Database layer for chats, expenses, participant shares, and balances (SQLite + Prisma)
-- [x] Telegram bot commands: `/split`, `/balances`, `/addmember`, `/removemember`, `/members`, `/settle` (demo)
-- [ ] On-chain USDC payment links (see Solana Pay note below)
-- [ ] Devnet USDC settlement test
-- [ ] Deployment and live group test
+- [x] Telegram bot commands: `/split`, `/balances`, `/addmember`, `/removemember`, `/members`, `/settle`
+- [x] Wallet linking: `/setwallet`, `/wallet` (Solana address validation)
+- [x] On-chain USDC payment links via Solana Pay (devnet) with QR codes
+- [x] Background payment watcher: bot auto-detects confirmed devnet USDC transfers and clears the ledger
+- [x] Deployment to Railway with persistent volume
+- [ ] Live devnet group test with real participants
+- [ ] Mainnet rollout (after monitoring + RPC quotas)
 
 ### Stage 2: Web App
 
@@ -218,26 +222,40 @@ Then open Telegram and send:
 
 ```text
 /start
+/setwallet <your devnet Solana address>
 /addmember Tom
-/addmember Sara
 /split 30 USDC dinner
 /balances
 /settle Tom 10
 ```
 
-Current local bot behavior:
+Current bot behavior:
 
 - `/start` introduces SplitStable
 - `/help` shows commands
 - `/addmember <name>` adds a real participant to this chat
 - `/removemember <name>` removes a member (only when they have no outstanding balance)
-- `/members` lists current chat members
-- `/split 30 USDC dinner` creates a demo equal split among the chat's real members and persists it to SQLite
-- `/balances` reads the chat's current outstanding demo balances from SQLite
-- `/settle <name> [amount]` marks a debt paid (full if no amount, partial otherwise); the sender can be either side of the debt
+- `/members` lists current chat members and the short form of each linked wallet
+- `/setwallet <address>` links your Solana wallet (validates as base58 Ed25519 pubkey)
+- `/wallet` shows your linked wallet
+- `/split 30 USDC dinner` creates an equal split among the chat's real members and persists it to SQLite
+- `/balances` reads the chat's current outstanding balances from SQLite
+- `/settle <name> [amount]` either:
+  - **on-chain mode** (both parties have linked wallets): generates a Solana Pay USDC request URL + QR on devnet. The debtor pays from their own wallet (Phantom, Solflare, Backpack…). A background watcher polls Solana RPC for the matching transaction and auto-clears the ledger when confirmed.
+  - **demo ledger mode** (either wallet missing): just adjusts the local balance row, like before. No on-chain action.
 - The person who runs `/split` is auto-added as a member if missing
-- Splits, balances, and settlements survive bot restarts; multiple splits in the same chat accumulate (with offsetting debts netted)
-- Wallet payments and on-chain settlement are not connected yet — `/settle` only updates the local ledger
+- Splits, balances, settlements, and payment intents survive bot restarts
+- Non-custodial: SplitStable never holds keys; users sign all transfers in their own wallet
+
+### Trying the on-chain settlement flow on devnet
+
+1. Install Phantom (or any Solana Pay-compatible wallet) and switch it to **Devnet** in settings.
+2. Get free devnet SOL: [`solfaucet.com`](https://solfaucet.com) (a few SOL is plenty).
+3. Get free devnet USDC: [`spl-token-faucet.com`](https://spl-token-faucet.com) (mint `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`).
+4. In your Telegram chat: `/setwallet <your phantom devnet address>`.
+5. Have your counterparty do the same.
+6. Run `/split 5 USDC dinner` then `/settle <name>`. Scan the QR with Phantom and confirm.
+7. Within ~15 seconds the bot posts the on-chain confirmation and clears the balance.
 
 Useful database commands:
 

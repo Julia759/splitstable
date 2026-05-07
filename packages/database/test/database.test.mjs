@@ -2,13 +2,22 @@ import assert from "node:assert/strict";
 import { after, before, beforeEach, describe, it } from "node:test";
 import {
   addMember,
+  confirmPaymentIntent,
+  createPaymentIntent,
   createPrismaClient,
+  expirePastIntents,
   getBalances,
+  getMember,
   listMembers,
+  listPendingPaymentIntents,
   recordSettlement,
   recordSplit,
-  removeMember
+  removeMember,
+  setMemberWallet
 } from "../dist/index.js";
+
+const VALID_WALLET = "9hHs1J5gPRSkjucZxdCKsqLQGY2nUaSuwqcDR7zRXkTo";
+const VALID_WALLET_TWO = "B1QouLB16HeoAY1AQiEBMMfLoLp2zVo38SvoMMQEPuTb";
 
 const prisma = createPrismaClient();
 
@@ -24,6 +33,7 @@ beforeEach(async () => {
   await prisma.expenseParticipant.deleteMany();
   await prisma.balance.deleteMany();
   await prisma.expense.deleteMany();
+  await prisma.paymentIntent.deleteMany();
   await prisma.chatMember.deleteMany();
   await prisma.telegramChat.deleteMany();
 });
@@ -190,6 +200,76 @@ describe("recordSplit", () => {
     const anna = await listMembers(4002n, prisma);
     assert.deepEqual(julia.map((m) => m.name).sort(), ["julia", "tom"]);
     assert.deepEqual(anna.map((m) => m.name).sort(), ["anna", "max"]);
+  });
+});
+
+describe("setMemberWallet", () => {
+  it("links a valid wallet address and auto-creates the member", async () => {
+    const result = await setMemberWallet(
+      {
+        chatId: 7001n,
+        senderDisplayName: "Julia",
+        walletAddress: VALID_WALLET
+      },
+      prisma
+    );
+
+    assert.equal(result.newlyLinked, true);
+    assert.equal(result.member.displayName, "Julia");
+    assert.equal(result.member.walletAddress, VALID_WALLET);
+
+    const fetched = await getMember(7001n, "Julia", prisma);
+    assert.equal(fetched.walletAddress, VALID_WALLET);
+  });
+
+  it("updates an existing wallet without re-creating the member", async () => {
+    await setMemberWallet(
+      { chatId: 7002n, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    const second = await setMemberWallet(
+      { chatId: 7002n, senderDisplayName: "Julia", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+
+    assert.equal(second.newlyLinked, false);
+    assert.equal(second.member.walletAddress, VALID_WALLET_TWO);
+
+    const all = await listMembers(7002n, prisma);
+    assert.equal(all.length, 1);
+  });
+
+  it("rejects a malformed Solana address", async () => {
+    await assert.rejects(
+      () =>
+        setMemberWallet(
+          {
+            chatId: 7003n,
+            senderDisplayName: "Julia",
+            walletAddress: "not-a-real-address"
+          },
+          prisma
+        ),
+      /not look like a valid Solana wallet/
+    );
+  });
+});
+
+describe("getMember", () => {
+  it("returns null when the member does not exist", async () => {
+    const result = await getMember(7100n, "Ghost", prisma);
+    assert.equal(result, null);
+  });
+
+  it("returns the member with their wallet address", async () => {
+    await setMemberWallet(
+      { chatId: 7101n, senderDisplayName: "Tom", walletAddress: VALID_WALLET },
+      prisma
+    );
+
+    const result = await getMember(7101n, "tom", prisma);
+    assert.equal(result.displayName, "Tom");
+    assert.equal(result.walletAddress, VALID_WALLET);
   });
 });
 
@@ -375,5 +455,222 @@ describe("recordSettlement", () => {
       members.map((m) => m.displayName),
       ["Julia"]
     );
+  });
+});
+
+describe("createPaymentIntent", () => {
+  async function seedDebtWithWallets(chatId) {
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Tom", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+    await recordSplit(
+      { chatId, description: "dinner", amount: "30", payerDisplayName: "Julia" },
+      prisma
+    );
+  }
+
+  it("creates a pending intent with a Solana Pay URL", async () => {
+    await seedDebtWithWallets(8001n);
+
+    const intent = await createPaymentIntent(
+      {
+        chatId: 8001n,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom"
+      },
+      prisma
+    );
+
+    assert.equal(intent.fromName, "tom");
+    assert.equal(intent.toName, "julia");
+    assert.equal(intent.amountBaseUnits, 15_000_000n);
+    assert.equal(intent.recipientWallet, VALID_WALLET);
+    assert.equal(intent.senderWallet, VALID_WALLET_TWO);
+    assert.match(intent.paymentUrl, /^solana:/);
+    assert.match(intent.paymentUrl, new RegExp(VALID_WALLET));
+    assert.ok(intent.expiresAt.getTime() > Date.now());
+  });
+
+  it("does NOT touch the balance ledger when creating an intent", async () => {
+    await seedDebtWithWallets(8002n);
+
+    const before = await getBalances(8002n, prisma);
+    await createPaymentIntent(
+      {
+        chatId: 8002n,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom",
+        amount: "5"
+      },
+      prisma
+    );
+    const after = await getBalances(8002n, prisma);
+
+    assert.deepEqual(after, before);
+  });
+
+  it("rejects when the counterparty has no wallet linked", async () => {
+    await setMemberWallet(
+      { chatId: 8003n, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    await addMember(8003n, "Tom", prisma);
+    await recordSplit(
+      { chatId: 8003n, description: "dinner", amount: "10", payerDisplayName: "Julia" },
+      prisma
+    );
+
+    await assert.rejects(
+      () =>
+        createPaymentIntent(
+          {
+            chatId: 8003n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "Tom"
+          },
+          prisma
+        ),
+      /Tom has not linked a wallet/
+    );
+  });
+
+  it("rejects when there is no outstanding debt", async () => {
+    await setMemberWallet(
+      { chatId: 8004n, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    await setMemberWallet(
+      { chatId: 8004n, senderDisplayName: "Tom", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+
+    await assert.rejects(
+      () =>
+        createPaymentIntent(
+          {
+            chatId: 8004n,
+            senderDisplayName: "Julia",
+            counterpartyRawName: "Tom"
+          },
+          prisma
+        ),
+      /No outstanding balance/
+    );
+  });
+});
+
+describe("confirmPaymentIntent", () => {
+  async function createIntent(chatId) {
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Tom", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+    await recordSplit(
+      { chatId, description: "dinner", amount: "30", payerDisplayName: "Julia" },
+      prisma
+    );
+    return createPaymentIntent(
+      {
+        chatId,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom"
+      },
+      prisma
+    );
+  }
+
+  it("marks the intent confirmed and reduces the balance atomically", async () => {
+    const intent = await createIntent(8101n);
+
+    const result = await confirmPaymentIntent(
+      { intentId: intent.id, txSignature: "fakesig123" },
+      prisma
+    );
+
+    assert.equal(result.alreadyConfirmed, false);
+    const balances = await getBalances(8101n, prisma);
+    assert.equal(balances.length, 0);
+  });
+
+  it("is idempotent on a second confirmation", async () => {
+    const intent = await createIntent(8102n);
+
+    await confirmPaymentIntent(
+      { intentId: intent.id, txSignature: "sig1" },
+      prisma
+    );
+    const second = await confirmPaymentIntent(
+      { intentId: intent.id, txSignature: "sig2" },
+      prisma
+    );
+
+    assert.equal(second.alreadyConfirmed, true);
+    const balances = await getBalances(8102n, prisma);
+    assert.equal(balances.length, 0);
+  });
+});
+
+describe("listPendingPaymentIntents and expirePastIntents", () => {
+  async function createIntentWith(chatId, expiresInMinutes) {
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Julia", walletAddress: VALID_WALLET },
+      prisma
+    );
+    await setMemberWallet(
+      { chatId, senderDisplayName: "Tom", walletAddress: VALID_WALLET_TWO },
+      prisma
+    );
+    await recordSplit(
+      { chatId, description: "dinner", amount: "30", payerDisplayName: "Julia" },
+      prisma
+    );
+    return createPaymentIntent(
+      {
+        chatId,
+        senderDisplayName: "Julia",
+        counterpartyRawName: "Tom",
+        expiresInMinutes
+      },
+      prisma
+    );
+  }
+
+  it("lists only pending, non-expired intents", async () => {
+    await createIntentWith(8201n, 30);
+    const stale = await createIntentWith(8202n, 30);
+
+    await prisma.paymentIntent.update({
+      where: { id: stale.id },
+      data: { expiresAt: new Date(Date.now() - 60_000) }
+    });
+
+    const pending = await listPendingPaymentIntents(prisma);
+    assert.equal(pending.length, 1);
+    assert.equal(pending[0].chatId, 8201n);
+  });
+
+  it("expirePastIntents flips status to expired", async () => {
+    const intent = await createIntentWith(8301n, 30);
+    await prisma.paymentIntent.update({
+      where: { id: intent.id },
+      data: { expiresAt: new Date(Date.now() - 60_000) }
+    });
+
+    const expired = await expirePastIntents(prisma);
+    assert.equal(expired, 1);
+
+    const refreshed = await prisma.paymentIntent.findUnique({
+      where: { id: intent.id }
+    });
+    assert.equal(refreshed.status, "expired");
   });
 });

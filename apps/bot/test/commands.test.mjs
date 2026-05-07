@@ -3,12 +3,16 @@ import { describe, it } from "node:test";
 import {
   createBalancesReply,
   createMembersReply,
+  createSetWalletReply,
   createSettleReply,
   createSplitReply,
+  createWalletReply,
   parseSettleCommand,
   parseSingleArgCommand,
   parseSplitCommand
 } from "../dist/index.js";
+
+const SAMPLE_WALLET = "9hHs1J5gPRSkjucZxdCKsqLQGY2nUaSuwqcDR7zRXkTo";
 
 describe("parseSplitCommand", () => {
   it("parses the MVP split command", () => {
@@ -211,17 +215,59 @@ describe("createMembersReply", () => {
     assert.equal(createMembersReply([]), "No members yet. Add one with /addmember <name>.");
   });
 
-  it("lists members with display names", () => {
+  it("lists members with their wallet status", () => {
+    const membersWithWallet = [
+      { name: "julia", displayName: "Julia", walletAddress: SAMPLE_WALLET },
+      { name: "tom", displayName: "Tom", walletAddress: null }
+    ];
+
     assert.equal(
-      createMembersReply(SAMPLE_MEMBERS),
+      createMembersReply(membersWithWallet),
       [
-        "Members (3):",
-        "- Julia",
-        "- Tom",
-        "- Sara",
+        "Members (2):",
+        "- Julia (wallet 9hHs…XkTo)",
+        "- Tom (no wallet)",
         "",
-        "Add more with /addmember <name>. Remove with /removemember <name>."
+        "Add more with /addmember <name>. Remove with /removemember <name>.",
+        "Each member can run /setwallet <address> to enable on-chain settlement."
       ].join("\n")
     );
+  });
+});
+
+describe("createWalletReply", () => {
+  it("nudges to link when no wallet is set", () => {
+    const member = { name: "julia", displayName: "Julia", walletAddress: null };
+    assert.equal(
+      createWalletReply(member),
+      "No wallet linked yet. Run /setwallet <address> to link your Solana wallet."
+    );
+  });
+
+  it("shows the linked wallet", () => {
+    const member = { name: "julia", displayName: "Julia", walletAddress: SAMPLE_WALLET };
+    assert.equal(
+      createWalletReply(member),
+      [
+        `Julia → ${SAMPLE_WALLET}`,
+        "",
+        "Use /setwallet <address> to change it."
+      ].join("\n")
+    );
+  });
+});
+
+describe("createSetWalletReply", () => {
+  it("renders 'Linked' on first link", () => {
+    const member = { name: "julia", displayName: "Julia", walletAddress: SAMPLE_WALLET };
+    const reply = createSetWalletReply(member, true);
+    assert.match(reply, /^Linked wallet for Julia\./);
+    assert.match(reply, new RegExp(SAMPLE_WALLET));
+  });
+
+  it("renders 'Updated' when changing an existing wallet", () => {
+    const member = { name: "julia", displayName: "Julia", walletAddress: SAMPLE_WALLET };
+    const reply = createSetWalletReply(member, false);
+    assert.match(reply, /^Updated wallet for Julia\./);
   });
 });

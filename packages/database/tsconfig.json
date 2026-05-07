@@ -8,7 +8,8 @@
     "rootDir": "src"
   },
   "references": [
-    { "path": "../split-engine" }
+    { "path": "../split-engine" },
+    { "path": "../solana" }
   ],
   "include": ["src/**/*.ts"]
 }

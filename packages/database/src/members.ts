@@ -1,3 +1,4 @@
+import { assertValidSolanaAddress } from "@splitstable/solana";
 import { getPrismaClient, type PrismaClient } from "./client.js";
 
 /**
@@ -142,6 +143,90 @@ export async function removeMember(
       walletAddress: member.walletAddress
     };
   });
+}
+
+export type SetWalletInput = {
+  chatId: ChatId;
+  /** Telegram first name of the sender; auto-creates the member if missing. */
+  senderDisplayName: string;
+  /** Raw base58 wallet address. */
+  walletAddress: string;
+};
+
+export type SetWalletResult = {
+  member: Member;
+  /** True if this is the first wallet ever set for this member. */
+  newlyLinked: boolean;
+};
+
+/**
+ * Link a Solana wallet address to the sender's chat membership.
+ *
+ * Auto-creates the member if missing (mirrors the /split auto-add
+ * behaviour) so a user's very first interaction can be /setwallet.
+ */
+export async function setMemberWallet(
+  input: SetWalletInput,
+  client: PrismaClient = getPrismaClient()
+): Promise<SetWalletResult> {
+  const { name, displayName } = assertValidName(input.senderDisplayName);
+  const validatedAddress = assertValidSolanaAddress(input.walletAddress);
+  const id = toBigIntChatId(input.chatId);
+
+  return client.$transaction(async (tx) => {
+    await tx.telegramChat.upsert({
+      where: { id },
+      create: { id },
+      update: {}
+    });
+
+    const existing = await tx.chatMember.findUnique({
+      where: { chatId_name: { chatId: id, name } }
+    });
+
+    const previousAddress = existing?.walletAddress ?? null;
+
+    const upserted = await tx.chatMember.upsert({
+      where: { chatId_name: { chatId: id, name } },
+      create: { chatId: id, name, displayName, walletAddress: validatedAddress },
+      update: { walletAddress: validatedAddress }
+    });
+
+    return {
+      member: {
+        name: upserted.name,
+        displayName: upserted.displayName,
+        walletAddress: upserted.walletAddress
+      },
+      newlyLinked: previousAddress === null
+    };
+  });
+}
+
+/**
+ * Look up a single member by canonical name.
+ */
+export async function getMember(
+  chatId: ChatId,
+  rawName: string,
+  client: PrismaClient = getPrismaClient()
+): Promise<Member | null> {
+  const name = canonicalize(rawName);
+  const id = toBigIntChatId(chatId);
+
+  const row = await client.chatMember.findUnique({
+    where: { chatId_name: { chatId: id, name } }
+  });
+
+  if (row === null) {
+    return null;
+  }
+
+  return {
+    name: row.name,
+    displayName: row.displayName,
+    walletAddress: row.walletAddress
+  };
 }
 
 /**

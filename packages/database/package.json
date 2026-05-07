@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@splitstable/solana": "workspace:*",
     "@splitstable/split-engine": "workspace:*"
   },
   "devDependencies": {

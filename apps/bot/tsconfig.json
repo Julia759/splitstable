@@ -9,7 +9,8 @@
   },
   "references": [
     { "path": "../../packages/split-engine" },
-    { "path": "../../packages/database" }
+    { "path": "../../packages/database" },
+    { "path": "../../packages/solana" }
   ],
   "include": ["src/**/*.ts"]
 }

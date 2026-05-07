@@ -24,6 +24,7 @@ model TelegramChat {
   expenses Expense[]
   balances Balance[]
   members  ChatMember[]
+  paymentIntents PaymentIntent[]
 }
 
 /// A real participant in a chat, managed via /addmember.
@@ -73,6 +74,41 @@ model ExpenseParticipant {
 
   @@unique([expenseId, participantName])
   @@index([expenseId])
+}
+
+/// One row per Solana Pay payment request created by /settle.
+/// Created when both parties have wallets linked. The bot polls the
+/// chain for transactions referencing this intent's reference key
+/// and, on confirmation, applies the settlement to the Balance ledger.
+///
+/// Status transitions:
+///   pending  -> confirmed (tx found and validated on-chain)
+///   pending  -> expired   (no tx found before expiresAt)
+///   pending  -> cancelled (user cancelled, future)
+model PaymentIntent {
+  id              String   @id @default(cuid())
+  chatId          BigInt
+  fromName        String
+  toName          String
+  amountBaseUnits BigInt
+  /// Base58 Solana public key used as a unique reference for tx lookup.
+  reference       String   @unique
+  /// Recipient (creditor) wallet address at the time the intent was created.
+  recipientWallet String
+  /// Sender (debtor) wallet address at the time the intent was created.
+  senderWallet    String
+  /// USDC SPL mint address used (devnet vs mainnet).
+  tokenMint       String
+  status          String   @default("pending")
+  txSignature     String?
+  createdAt       DateTime @default(now())
+  confirmedAt     DateTime?
+  expiresAt       DateTime
+
+  chat TelegramChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([status, expiresAt])
 }
 
 /// Net outstanding balance between two participants in a chat.

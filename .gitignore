@@ -12,6 +12,7 @@ dist/
 # Local SQLite databases (Prisma)
 packages/database/prisma/*.db
 packages/database/prisma/*.db-journal
+packages/database/prisma/prisma/
 packages/database/test.db
 packages/database/test.db-journal
 

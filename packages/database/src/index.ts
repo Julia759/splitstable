@@ -21,7 +21,22 @@ export {
   addMember,
   removeMember,
   listMembers,
+  getMember,
+  setMemberWallet,
   canonicalize,
   type Member,
-  type AddMemberResult
+  type AddMemberResult,
+  type SetWalletInput,
+  type SetWalletResult
 } from "./members.js";
+
+export {
+  createPaymentIntent,
+  listPendingPaymentIntents,
+  confirmPaymentIntent,
+  expirePastIntents,
+  type CreatePaymentIntentInput,
+  type CreatedPaymentIntent,
+  type PendingPaymentIntent,
+  type ConfirmPaymentIntentInput
+} from "./payments.js";
