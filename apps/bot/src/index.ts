@@ -185,7 +185,7 @@ export function createSplitReply(result: RecordSplitResult, members: Member[]): 
         `${display(displayMap, balance.fromParticipant)} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} ${result.token}`
     ),
     "",
-    "[Demo only - wallet payments coming next]"
+    "When both people in a /settle have linked /setwallet addresses, the bot sends a Solana Pay QR (devnet USDC). Otherwise only the ledger here updates."
   ];
 
   return lines.join("\n");
@@ -199,13 +199,13 @@ export function createBalancesReply(balances: PersistedBalance[], members: Membe
   const displayMap = buildDisplayMap(members);
 
   return [
-    "Current demo balances for this chat:",
+    "Current balances for this chat:",
     ...balances.map(
       (balance) =>
         `${display(displayMap, balance.fromParticipant)} owes ${formatUsdcFromBaseUnits(balance.amountBaseUnits)} USDC to ${display(displayMap, balance.toParticipant)}`
     ),
     "",
-    "Demo only: wallet payments and real settlement are coming next."
+    "Link wallets (/setwallet) so /settle can open real devnet USDC; otherwise this is ledger-only until then."
   ].join("\n");
 }
 
@@ -223,7 +223,7 @@ export function createSettleReply(
       `Settled: ${fromName} paid ${toName} ${settled} USDC.`,
       `${fromName} and ${toName} are even.`,
       "",
-      "[Demo only - no real funds moved]"
+      "Ledger only (no chain): both members need /setwallet for a Solana Pay payment."
     ].join("\n");
   }
 
@@ -232,7 +232,7 @@ export function createSettleReply(
     `Settled: ${fromName} paid ${toName} ${settled} USDC.`,
     `${fromName} still owes ${toName} ${remaining} USDC.`,
     "",
-    "[Demo only - no real funds moved]"
+    "Ledger only (no chain): both members need /setwallet for a Solana Pay payment."
   ].join("\n");
 }
 

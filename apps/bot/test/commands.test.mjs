@@ -89,7 +89,7 @@ describe("createSplitReply", () => {
         "Tom owes 10 USDC",
         "Sara owes 10 USDC",
         "",
-        "[Demo only - wallet payments coming next]"
+        "When both people in a /settle have linked /setwallet addresses, the bot sends a Solana Pay QR (devnet USDC). Otherwise only the ledger here updates."
       ].join("\n")
     );
   });
@@ -112,11 +112,11 @@ describe("createBalancesReply", () => {
     assert.equal(
       createBalancesReply(balances, SAMPLE_MEMBERS),
       [
-        "Current demo balances for this chat:",
+        "Current balances for this chat:",
         "Tom owes 10 USDC to Julia",
         "Sara owes 10 USDC to Julia",
         "",
-        "Demo only: wallet payments and real settlement are coming next."
+        "Link wallets (/setwallet) so /settle can open real devnet USDC; otherwise this is ledger-only until then."
       ].join("\n")
     );
   });
@@ -129,10 +129,10 @@ describe("createBalancesReply", () => {
     assert.equal(
       createBalancesReply(balances, SAMPLE_MEMBERS),
       [
-        "Current demo balances for this chat:",
+        "Current balances for this chat:",
         "ghost owes 5 USDC to Julia",
         "",
-        "Demo only: wallet payments and real settlement are coming next."
+        "Link wallets (/setwallet) so /settle can open real devnet USDC; otherwise this is ledger-only until then."
       ].join("\n")
     );
   });
@@ -253,7 +253,7 @@ describe("createSettleReply", () => {
         "Settled: Tom paid Julia 15 USDC.",
         "Tom and Julia are even.",
         "",
-        "[Demo only - no real funds moved]"
+        "Ledger only (no chain): both members need /setwallet for a Solana Pay payment."
       ].join("\n")
     );
   });
@@ -273,7 +273,7 @@ describe("createSettleReply", () => {
         "Settled: Tom paid Julia 5 USDC.",
         "Tom still owes Julia 10 USDC.",
         "",
-        "[Demo only - no real funds moved]"
+        "Ledger only (no chain): both members need /setwallet for a Solana Pay payment."
       ].join("\n")
     );
   });
