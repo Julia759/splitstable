@@ -1,49 +1,95 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
   <title id="title">SplitStable logo</title>
-  <desc id="desc">A modern logo for SplitStable featuring a Telegram-like chat bubble, three participants, and a green settlement coin.</desc>
+  <desc id="desc">A modern, high-tech logo for SplitStable with a split stablecoin and a playful, humorous edge.</desc>
+
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#111827"/>
+      <stop offset="0%" stop-color="#091522"/>
+      <stop offset="100%" stop-color="#0d172a"/>
     </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="45%" stop-color="#14b8a6"/>
+    <linearGradient id="panelGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.24"/>
+    </linearGradient>
+    <linearGradient id="wordGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="38%" stop-color="#0f172a"/>
+      <stop offset="40%" stop-color="#14b8a6"/>
+      <stop offset="72%" stop-color="#3b82f6"/>
       <stop offset="100%" stop-color="#22c55e"/>
     </linearGradient>
-    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#88f7c9"/>
-      <stop offset="100%" stop-color="#16a34a"/>
+    <linearGradient id="coinLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8ef7cf"/>
+      <stop offset="100%" stop-color="#22c55e"/>
     </linearGradient>
-    <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.18"/>
+    <linearGradient id="coinRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0b1120" flood-opacity="0.22"/>
     </filter>
+    <pattern id="grid" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M18 0H0V18" fill="none" stroke="#dbeafe" stroke-opacity="0.08"/>
+    </pattern>
+    <clipPath id="coinClip">
+      <circle cx="0" cy="0" r="56"/>
+    </clipPath>
   </defs>
 
-  <g transform="translate(34,34)" filter="url(#shadow)">
+  <g transform="translate(30,34)" filter="url(#shadow)">
     <rect x="0" y="0" width="252" height="252" rx="58" fill="url(#bgGrad)"/>
-    <rect x="18" y="18" width="216" height="216" rx="44" fill="none" stroke="rgba(255,255,255,0.24)"/>
+    <rect x="16" y="16" width="220" height="220" rx="46" fill="none" stroke="#ffffff" stroke-opacity="0.14"/>
+    <rect x="28" y="28" width="196" height="196" rx="32" fill="url(#panelGlow)"/>
+    <rect x="28" y="28" width="196" height="196" rx="32" fill="url(#grid)" opacity="0.7"/>
 
-    <path d="M60 86C60 67 75 52 94 52H177C196 52 211 67 211 86V129C211 148 196 163 177 163H136L96 204V163H94C75 163 60 148 60 129V86Z" fill="#f8fafc"/>
+    <path d="M58 82C58 66 70 54 86 54H168C184 54 196 66 196 82V114C196 130 184 142 168 142H136L98 182V142H86C70 142 58 130 58 114V82Z" fill="#f8fafc"/>
 
-    <circle cx="93" cy="106" r="15" fill="#7c3aed"/>
-    <circle cx="122" cy="106" r="15" fill="#22c55e"/>
-    <circle cx="151" cy="106" r="15" fill="#38bdf8"/>
+    <g transform="translate(68,62)">
+      <circle cx="0" cy="0" r="60" fill="#0f172a" fill-opacity="0.08"/>
+      <circle cx="0" cy="0" r="54" fill="none" stroke="#e2e8f0" stroke-opacity="0.22" stroke-width="6"/>
+      <g clip-path="url(#coinClip)">
+        <rect x="-56" y="-56" width="56" height="112" fill="url(#coinLeft)"/>
+        <rect x="0" y="-56" width="56" height="112" fill="url(#coinRight)"/>
+      </g>
+      <path d="M0 -42 L0 42" stroke="#f8fafc" stroke-width="7" stroke-linecap="round"/>
+      <path d="M-18 -10Q0 12 18 -10" fill="none" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="-18" cy="-18" r="4" fill="#0f172a" fill-opacity="0.85"/>
+      <circle cx="18" cy="-18" r="4" fill="#0f172a" fill-opacity="0.85"/>
+      <path d="M-32 36C-15 48 15 48 32 36" fill="none" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+    </g>
 
-    <path d="M96 143H181" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>
-    <path d="M112 164H181" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>
+    <g fill="#ffffff" font-family="Inter, 'Segoe UI', sans-serif" font-size="11" font-weight="700" letter-spacing="2">
+      <text x="92" y="48">SPLIT</text>
+      <text x="154" y="48">STABLE</text>
+    </g>
 
-    <circle cx="188" cy="166" r="29" fill="url(#coinGrad)" stroke="#ecfdf5" stroke-width="7"/>
-    <path d="M176 166H200" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-    <path d="M188 154V178" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <g transform="translate(70,152)">
+      <circle cx="0" cy="0" r="4" fill="#22d3ee"/>
+      <circle cx="18" cy="0" r="4" fill="#8b5cf6"/>
+      <circle cx="36" cy="0" r="4" fill="#22c55e"/>
+      <path d="M52 0H115" stroke="#e2e8f0" stroke-opacity="0.7" stroke-width="3" stroke-linecap="round"/>
+      <path d="M118 0L124 6M118 0L124 -6" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+    </g>
   </g>
 
-  <g transform="translate(330,96)">
-    <text x="0" y="104" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="800" letter-spacing="-4" fill="#0f172a">Split</text>
-    <text x="378" y="104" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="800" letter-spacing="-4" fill="#19a66a">Stable</text>
+  <g transform="translate(340,86)">
+    <text x="0" y="106" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="900" letter-spacing="-4" fill="url(#wordGrad)">Split</text>
+    <text x="382" y="106" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="900" letter-spacing="-4" fill="url(#wordGrad)">Stable</text>
 
-    <rect x="0" y="135" width="676" height="10" rx="5" fill="url(#accentGrad)"/>
+    <rect x="0" y="132" width="690" height="12" rx="6" fill="url(#accentLine)"/>
 
-    <text x="0" y="204" font-family="Inter, 'Segoe UI', sans-serif" font-size="31" font-weight="600" fill="#475569" letter-spacing="0.6">Telegram-native USDC settlement for group expenses</text>
+    <text x="0" y="205" font-family="Inter, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#475569" letter-spacing="1.2">stablecoin settlement for groups that love a clean split</text>
+
+    <g transform="translate(0,230)">
+      <rect x="0" y="0" width="208" height="40" rx="20" fill="#0f172a"/>
+      <text x="29" y="26" font-family="Inter, 'Segoe UI', sans-serif" font-size="19" font-weight="800" fill="#f8fafc" letter-spacing="1.4">SPLIT • SETTLE</text>
+    </g>
   </g>
 </svg>
