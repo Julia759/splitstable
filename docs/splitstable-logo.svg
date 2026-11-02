@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">SplitStable logo</title>
+  <desc id="desc">A modern logo for SplitStable featuring a Telegram-like chat bubble, three participants, and a green settlement coin.</desc>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="45%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#88f7c9"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(34,34)" filter="url(#shadow)">
+    <rect x="0" y="0" width="252" height="252" rx="58" fill="url(#bgGrad)"/>
+    <rect x="18" y="18" width="216" height="216" rx="44" fill="none" stroke="rgba(255,255,255,0.24)"/>
+
+    <path d="M60 86C60 67 75 52 94 52H177C196 52 211 67 211 86V129C211 148 196 163 177 163H136L96 204V163H94C75 163 60 148 60 129V86Z" fill="#f8fafc"/>
+
+    <circle cx="93" cy="106" r="15" fill="#7c3aed"/>
+    <circle cx="122" cy="106" r="15" fill="#22c55e"/>
+    <circle cx="151" cy="106" r="15" fill="#38bdf8"/>
+
+    <path d="M96 143H181" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>
+    <path d="M112 164H181" stroke="#0f172a" stroke-width="8" stroke-linecap="round"/>
+
+    <circle cx="188" cy="166" r="29" fill="url(#coinGrad)" stroke="#ecfdf5" stroke-width="7"/>
+    <path d="M176 166H200" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <path d="M188 154V178" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(330,96)">
+    <text x="0" y="104" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="800" letter-spacing="-4" fill="#0f172a">Split</text>
+    <text x="378" y="104" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="800" letter-spacing="-4" fill="#19a66a">Stable</text>
+
+    <rect x="0" y="135" width="676" height="10" rx="5" fill="url(#accentGrad)"/>
+
+    <text x="0" y="204" font-family="Inter, 'Segoe UI', sans-serif" font-size="31" font-weight="600" fill="#475569" letter-spacing="0.6">Telegram-native USDC settlement for group expenses</text>
+  </g>
+</svg>
